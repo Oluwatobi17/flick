@@ -1,0 +1,156 @@
+
+{% extends "index/base.html" %}
+
+
+{% load static %}
+
+{% block content %}
+	 
+	<!--================Home Banner Area =================-->
+	<section class="home_banner_area">
+	    <div class="banner_inner d-flex align-items-center">
+			<div class="container">
+				<div class="banner_content row">
+					<div class="col-lg-5">
+						<h3>Stay motivated and protected day by day!</h3>
+						<p>People often say that motivation doesn't last. Well, neither does bathing - that is why we recommend it daily.</p>
+					</div>
+					<div class="col-lg-7">
+						<div class="halemet_img">
+							<img src="{% static 'index/img/banner/vest.png' %}" alt="">
+						</div>
+					</div>
+				</div>
+			</div>
+	    </div>
+	</section>
+	<!--================End Home Banner Area =================-->
+
+	<!--================Feature Product Area =================-->
+	{% if Quoteoftheday %}
+		<section class="feature_product_area">
+			<div class="main_box">
+				<div class="container">
+					<div class="row hot_product_inner">
+						<div class="col-lg-6">
+							<div class="hot_p_item">
+								<img class="img-fluid" src="{% static '/img/product/hot-product/hot-p-1.jpg' %}" alt="">
+								<div class="product_text">
+									<h4>Lover of the <br />Dopest Jokes?</h4>
+									<a href="/post/Joke/all">CHECK IT OUT</a>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-6">
+							<div class="hot_p_item">
+								<img class="img-fluid" src="{% static '/img/product/hot-product/hot-p-2.jpg' %}" alt="">
+								<div class="product_text">
+									<h4>Die hard fan <br />of Quotes?</h4>
+									<a href="/post/Quote/all">CHECK IT OUT</a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="feature_product_inner">
+						<div class="main_title">
+							<h2>Quotes of the day</h2>
+							<p>Mind blowing.</p>
+						</div>
+						<div class="feature_p_slider owl-carousel">
+							{% for quote in Quoteoftheday %}
+								<div class="item">
+									<div class="f_p_item">
+										<div class="f_p_img post_height">
+											<h4>{{quote.post.body}}</h4>
+											<div class="p_icon">
+												<a href="/post/favour/{{quote.post.pk}}"><i class="lnr lnr-heart"></i></a>
+												<!-- <a href="#"><i class="lnr lnr-cart"></i></a> -->
+												<!-- <a href="#" id="heartbreak"><i class="fa fa-heart fa-stack-1x"></i><i class="fa fa-bolt fa-stack-1x fa-inverse"></i></a> -->
+											</div>
+										</div>
+										<a href="#"><h4>By {{quote.post.user.username}}</h4></a>
+										<h5> <strong><i class="lnr lnr-heart"></i> {{quote.post.view_set.count}}</strong> </h5>
+									</div>
+								</div>
+							{% endfor %}
+							<h3></h3>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	{% endif %}
+
+	{% if Motivationoftheday %}
+		<section class="feature_product_area">
+			<div class="main_box">
+				<div class="container">
+					<div class="feature_product_inner">
+						<div class="main_title">
+							<h2>Motivation of the day</h2>
+							<p>Mind blowing.</p>
+						</div>
+						<div class="feature_p_slider owl-carousel">
+							{% for motive in Motivationoftheday %}
+								<div class="item">
+									<div class="f_p_item">
+										<div class="f_p_img post_height2">
+											<!-- <img class="/img-fluid" src="{% static '/img/product/feature-product/f-p-1.jpg' %}" alt=""> -->
+											<h4>{{motive.post.body}}</h4>
+											<div class="p_icon">
+												<a href="/post/favour/{{motive.post.id}}"><i class="lnr lnr-heart"></i></a>
+												<!-- <a href="#"><i class="lnr lnr-cart"></i></a> -->
+												<!-- <a href="#" id="heartbreak"><i class="fa fa-heart fa-stack-1x"></i><i class="fa fa-bolt fa-stack-1x fa-inverse"></i></a> -->
+											</div>
+										</div>
+										<a href="/profile/{{motive.post.user.username}}"><h4>By {{motive.post.user.username}}</h4></a>
+										<h5> <strong><i class="lnr lnr-heart"></i> {{motive.post.view_set.count}}</strong> </h5>
+									</div>
+								</div>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	{% endif %}
+	<!--================End Feature Product Area =================-->
+
+	<!-- displays If visit is a registed user -->
+	<!--================Feature Product Area =================-->
+	{% if Jokeoftheday %}
+		<section class="feature_product_area">
+			<div class="main_box">
+				<div class="container">
+					<div class="feature_product_inner">
+						<div class="main_title">
+							<h2>Jokes of the day.</h2>
+							<p>Mind blowing.</p>
+						</div>
+						<div class="feature_p_slider owl-carousel">
+							{% for joke in Jokeoftheday %}
+								<div class="item">
+									<div class="f_p_item">
+										<div class="f_p_img post_height">
+											<h4>{{joke.post.body}}</h4>
+											<div class="p_icon">
+												<a href="/post/favour/{{joke.post.pk}}"><i class="lnr lnr-heart"></i></a>
+												<!-- <a href="#"><i class="lnr lnr-cart"></i></a> -->
+												<!-- <a href="#" id="heartbreak"><i class="fa fa-heart fa-stack-1x"></i><i class="fa fa-bolt fa-stack-1x fa-inverse"></i></a> -->
+											</div>
+										</div>
+										<a href="/profile/{{joke.post.user.username}}"><h4>By {{joke.post.user.username}}</h4></a>
+										<h5> <strong><i class="lnr lnr-heart"></i> {{joke.post.view_set.count}}</strong> </h5>
+									</div>
+								</div>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	{% endif %}
+	<!--================End Feature Product Area =================-->
+
+
+{% endblock %}

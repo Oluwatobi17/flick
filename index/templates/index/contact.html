@@ -1,0 +1,102 @@
+{% extends "index/base.html" %}
+
+
+{% load static %}
+
+{% block content %}
+<!--================Header Menu Area =================-->
+
+
+<!--================Header Menu Area =================-->
+
+<!--================Home Banner Area =================-->
+<section class="banner_area">
+    <div class="banner_inner d-flex align-items-center">
+        <div class="container">
+            <div class="banner_content text-center">
+                <h2>Contact Us</h2>
+                <div class="page_link">
+                    <a href="/">Home</a>
+                    <a href="/contact">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--================End Home Banner Area =================-->
+
+<!--================Contact Area =================-->
+<section class="contact_area p_120">
+    <div class="container">
+        <!-- <div id="mapBox" class="mapBox" 
+            data-lat="40.701083" 
+            data-lon="-74.1522848" 
+            data-zoom="13" 
+            data-info="PO Box CT16122 Collins Street West, Victoria 8007, Australia."
+            data-mlat="40.701083"
+            data-mlon="-74.1522848">
+        </div> -->
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="contact_info">
+                    <div class="info_item">
+                        <i class="lnr lnr-home"></i>
+                        <h6>Lagos, Nigeria</h6>
+                        <p>Sabo Yaba</p>
+                    </div>
+                    <div class="info_item">
+                        <i class="lnr lnr-phone-handset"></i>
+                        <h6><a href="#">+234 8185 502 574</a></h6>
+                        <p>Mon to Sat 8am to 6 pm</p>
+                    </div>
+                    <div class="info_item">
+                        <i class="lnr lnr-envelope"></i>
+                        <h6><a href="#">ganiuibrahim3000@gmail.com</a></h6>
+                        <p>Send us your query anytime!</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-9">
+                <form class="row contact_form" action="" method="post" id="contactForm" novalidate="novalidate">
+                    {% csrf_token %}
+                    <div class="col-md-6">
+                        {% if not user %}
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="name" name="sender" placeholder="Enter your name">
+                            </div> <!-- Author show be logged in user's name -->
+                            <div class="form-group">
+                                <input type="email" class="form-control" id="email" name="email" placeholder="Enter email address">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="subject" name="subject" placeholder="Enter Subject">
+                            </div>
+                        {% else %}
+                            <div class="form-group">
+                                <input type="hidden" class="form-control" id="name" name="sender" value="{{user.username}}">
+                            </div>
+                            <div class="form-group">
+                                <input type="email" class="form-control" id="email" name="email" value="{{user.email}}" placeholder="Enter email address">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="subject" name="subject" placeholder="Enter Subject">
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <textarea class="form-control" name="message" id="message" rows="1" placeholder="Enter Message"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-12 text-right">
+                        <button type="submit" value="submit" class="btn submit_btn">Send Message</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<!--================Contact Area =================-->
+
+<!--================Blog Area =================-->
+{% endblock %}
+<!--================ End footer Area  =================-->

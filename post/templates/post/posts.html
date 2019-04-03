@@ -1,0 +1,207 @@
+{% extends "index/base.html" %}
+
+
+{% load static %}
+
+{% block content %}
+<!--================Header Menu Area =================-->
+<style type="text/css">
+    .authordetails{
+        min-height: 360px;
+        margin-bottom: 140px;
+        background: white;
+    }
+    .postdetail{
+        min-height: 350px;
+    }
+</style>
+
+<!--================Blog Categorie Area =================-->
+<section class="blog_categorie_area">
+<div class="container">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="categories_post">
+                <img src="{% static '/img/blog/cat-post/cat-post-3.jpg' %}" alt="post">
+                <div class="categories_details">
+                    <div class="categories_text">
+                        <a href="/post/Joke/all"><h5>Social Life</h5></a>
+                        <div class="border_line"></div>
+                        <p>Enjoy your social life together</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="categories_post">
+                <img src="{% static '/img/blog/cat-post/cat-post-2.jpg' %}" alt="post">
+                <div class="categories_details">
+                    <div class="categories_text">
+                        <a href="/post/Puzzle/all"><h5>Puzzles</h5></a>
+                        <div class="border_line"></div>
+                        <p>Hack the world</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="categories_post">
+                <img src="{% static '/img/blog/cat-post/cat-post-1.jpg' %}" alt="post">
+                <div class="categories_details">
+                    <div class="categories_text">
+                        <a href="/post/Motivation/all"><h5>Motivation</h5></a>
+                        <div class="border_line"></div>
+                        <p>Stay motivated and energized</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+<!--================Blog Categorie Area =================-->
+
+<!--================Blog Area =================-->
+<section class="blog_area">
+<div class="container">
+    <h2>House of {{postType}}s</h2>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="blog_left_sidebar">
+                {% if posts %}
+                    {% for post in posts %}
+                        <article class="row blog_item postdetail">
+                           <div class="col-md-3">
+                               <div class="blog_info text-right">
+                                    <div class="post_tag">
+                                        <a href="/post/{{post.pk}}">{{post.category}}</a>
+                                    </div>
+                                    <ul class="blog_meta list">
+                                        <li><a href="/profile/{{post.user.username}}">{{post.user.username}}<i class="lnr lnr-user"></i></a></li>
+                                        <li><a href="/post/{{post.pk}}">{{post.date|date:"d M, Y"}}<i class="lnr lnr-calendar-full"></i></a></li>
+                                        <li><a href="/post/{{post.pk}}">{{post.view_set.count}} Views<i class="lnr lnr-eye"></i></a></li>
+                                        <li><a href="/post/{{post.pk}}">{{post.postcomment_set.count}} Comments<i class="lnr lnr-bubble"></i></a></li>
+                                    </ul>
+                                    <h3>
+                                        <a href="/post/favour/{{post.pk}}" class="icon_btn" title="Add to favourite list"><i class="lnr lnr lnr-diamond"></i></a>
+                                    </h3>
+                                </div>
+                           </div>
+                            <div class="col-md-9">
+                                <div class="blog_post">
+                                    <img src="/static/img/background/{{post.background}}" alt="">
+                                    <div class="blog_details">
+                                        <a href="/post/{{post.pk}}"><h2>{{post.title}}</h2></a>
+                                        <p>{{ post.body | truncatewords:19 }}</p>
+                                        <a href="/post/{{post.pk}}" class="white_bg_btn">View More</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                    <!-- <nav class="blog-pagination justify-content-center d-flex">
+                        <ul class="pagination">
+                            <li class="page-item">
+                                <a href="#" class="page-link" aria-label="Previous">
+                                    <span aria-hidden="true">
+                                        <span class="lnr lnr-chevron-left"></span>
+                                    </span>
+                                </a>
+                            </li>
+                            
+                            <li class="page-item"><a href="#" class="page-link">01</a></li>
+                            <li class="page-item active"><a href="#" class="page-link">02</a></li>
+                            <li class="page-item"><a href="#" class="page-link">03</a></li>
+                            <li class="page-item"><a href="#" class="page-link">04</a></li>
+                            <li class="page-item"><a href="#" class="page-link">09</a></li>
+                            <li class="page-item">
+                                <a href="#" class="page-link" aria-label="Next">
+                                    <span aria-hidden="true">
+                                        <span class="lnr lnr-chevron-right"></span>
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav> -->
+                {% else %}
+                    <p>No {{postType}} to display</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="blog_right_sidebar">
+                {% if posts %}
+                <!-- Each author for every post -->
+                    {% for author in posts %}
+                        <aside class="single_sidebar_widget author_widget authordetails">
+                            {% if author.user.profilePics %}
+                                <img class="author_img rounded-circle post_profpics" src="{{author.user.profilePics.url}}" alt="">
+                            {% else %}
+                                <img class="author_img rounded-circle post_profpics" src="{% static 'index/media/default.png' %}" alt="">
+                            {% endif %}
+                            <a href="/profile/{{author.user.username}}"><h4>{{author.user.username}}</h4></a>
+                            <p>{{author.user.post_set.count}} Posts</p>
+
+                        
+                            <!-- Description of the author from author's profile -->
+                            {% if author.user.aboutUser %}
+                                <p>{{author.user.aboutUser | truncatewords:19}}</p>
+                            {% else %}
+                                <p>No description about {{author.user.ursername}} yet.</p>
+                            {% endif %}
+                            {% if user.username != author.user.username %}
+                                {% if author.user.username in following %}
+                                    <a href="/unfollow/{{author.user.username}}" class="white_bg_btn">Unfollow</a>
+                                {% else %}
+                                    <a href="/follow/{{author.user.username}}" class="white_bg_btn">Follow</a>
+                                {% endif %}
+                            {% endif %}
+                            <div class="br"></div>
+                        </aside>
+                    {% endfor %}
+                {% endif %}
+                <!-- <aside class="single_sidebar_widget popular_post_widget">
+                    <h3 class="widget_title">Popular Posts</h3>
+                    <div class="media post_item">
+                        <img src="{% static '/img/blog/popular-post/post1.jpg' %}" alt="post">
+                        <div class="media-body">
+                            <a href="blog-details.html"><h3>Space The Final Frontier</h3></a>
+                            <p>02 Hours ago</p>
+                        </div>
+                    </div>
+                    <div class="media post_item">
+                        <img src="{% static '/img/blog/popular-post/post2.jpg' %}" alt="post">
+                        <div class="media-body">
+                            <a href="blog-details.html"><h3>The Amazing Hubble</h3></a>
+                            <p>02 Hours ago</p>
+                        </div>
+                    </div>
+                    <div class="media post_item">
+                        <img src="{% static '/img/blog/popular-post/post3.jpg' %}" alt="post">
+                        <div class="media-body">
+                            <a href="blog-details.html"><h3>Astronomy Or Astrology</h3></a>
+                            <p>03 Hours ago</p>
+                        </div>
+                    </div>
+                    <div class="media post_item">
+                        <img src="{% static '/img/blog/popular-post/post4.jpg' %}" alt="post">
+                        <div class="media-body">
+                            <a href="blog-details.html"><h3>Asteroids telescope</h3></a>
+                            <p>01 Hours ago</p>
+                        </div>
+                    </div>
+                    <div class="br"></div>
+                </aside> -->
+                <aside class="single_sidebar_widget ads_widget">
+                    <a href="#"><img class="img-fluid" src="{% static '/img/blog/add.jpg' %}" alt=""></a>
+                    <div class="br"></div>
+                </aside>
+                
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+<!--================Blog Area =================-->
+{% endblock %}
+<!--================ End footer Area  =================-->

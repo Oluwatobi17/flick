@@ -1,0 +1,1 @@
+web: gunicorn flense.wsgi --log-file -

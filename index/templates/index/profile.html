@@ -1,0 +1,661 @@
+{% extends "index/base.html" %}
+
+
+{% load static %}
+
+{% block content %}
+<!--================Header Menu Area =================-->
+
+<style type="text/css">
+	.small_propics{
+		width: 70px;
+		height: 70px;
+		border-radius: 35px;
+	}
+</style>
+
+<!--================Home Banner Area =================-->
+{% autoescape on %}
+<section class="banner_area">
+    <div class="banner_inner d-flex align-items-center">
+		<div class="container">
+			<div class="banner_content text-center">
+				<h2>Your profile</h2>
+				<div class="page_link">
+					<a href="/">Home</a>
+					<a href="/profile">Profile</a>
+				</div>
+			</div>
+		</div>
+    </div>
+</section>
+<!--================End Home Banner Area =================-->
+
+<!--================ Profile showcase Area =================-->
+<div class="product_image_area">
+	<div class="container">
+		<div class="row s_product_inner">
+			<div class="col-lg-6">
+				{% if user.profilePics %}
+					<div class="s_product_img">
+						<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+							<div class="carousel-inner">
+								<div class="carousel-item active">
+									<img class="d-block w-100" src="{{user.profilePics.url}}" alt="Profile Picture">
+								</div>
+							</div>
+						</div>
+					</div>
+				{% else %}
+					<div class="s_product_img">
+							<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+								<div class="carousel-inner">
+									
+									<div class="carousel-item active">
+										<img class="d-block w-100" src="{% static 'index/media/default.png' %}" alt="First slide">
+									</div>
+								</div>
+							</div>
+						</div>
+				{% endif %}
+			</div>
+			<div class="col-lg-5 offset-lg-1">
+				<div class="s_product_text">
+					<h3>{{ user.username }}</h3>
+
+					{% if user.post_set.count %}
+						<h4> {{ user.post_set.count }} Posts</h4>
+					{% else %}
+						<h4> 0 Post</h4>
+					{% endif %}
+					<ul class="list">
+						<li><a class="active" href="#name"><span>Name</span> : {{ user.first_name }} {{ user.last_name }}</a></li>
+						<li><a class="active" href="#email"><span>Email</span> : {{ user.email }}</a></li>
+					</ul>
+						{% if user.aboutUser %}
+							<p>{{user.aboutUser}}</p>
+						{% else %}
+							<p>No description about you given yet</p>
+						{% endif %}
+
+					<div class="card_area">
+						<a class="main_btn" href="#">Change Picture</a>
+						<a class="icon_btn" href="#"><i class="lnr lnr lnr-diamond"></i></a>
+						<a class="icon_btn" href="#"><i class="lnr lnr lnr-heart"></i></a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!--================ Profile showcase Area =================-->
+
+<!--================ Edit Profile Area =================-->
+<section class="product_description_area">
+	<div class="container">
+		<ul class="nav nav-tabs" id="myTab" role="tablist">
+			<li class="nav-item">
+			<a class="nav-link" id="wall-tab" data-toggle="tab" href="#wall" role="tab" aria-controls="wall" aria-selected="true">Wall</a>
+			</li>
+			<li class="nav-item">
+			<a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Edit Profile</a>
+			</li>
+			<li class="nav-item">
+			<a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Change Password</a>
+			</li>
+			<li class="nav-item">
+			<a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Favorites</a>
+			</li>
+			<li class="nav-item">
+			<a class="nav-link active" id="review-tab" data-toggle="tab" href="#review" role="tab" aria-controls="review" aria-selected="false">Posts</a>
+			</li>
+			<li class="nav-item">
+			<a class="nav-link" id="follower-tab" data-toggle="tab" href="#follower" role="tab" aria-controls="follower" aria-selected="false">Community</a>
+			</li>
+		</ul>
+		<div class="tab-content" id="myTabContent">
+			<div class="tab-pane fade" id="wall" role="tabpanel" aria-labelledby="wall-tab">
+				<h3>Your Wall({{wall | length}})</h3>
+				<div class="row">
+					<!-- Write on your wall -->
+					<div class="col-lg-6">
+						<div class="review_box">
+							<form class="row contact_form" id="contactForm7" novalidate="novalidate" onsubmit="writeonwall(); return false;">
+								{% csrf_token %}
+								<div class="col-md-12">
+									<p style="display: none;" id="wallowner">{{ user.username }}</p>
+									<div class="form-group">
+										<textarea class="form-control" name="body" id="message5" rows="1" placeholder="Write on your wall"></textarea>
+									</div>
+								</div>
+								<div class="col-md-12 text-right">
+									<input type="submit" value="Write" class="btn submit_btn">
+								</div>
+							</form>
+							
+						</div>
+					</div>
+					<div class="col-lg-6">
+						<div class="comment_list">
+							{% if wall %}
+								{% for wallpost in wall %}
+									<div class="review_item">
+										<div class="media">
+											<div class="d-flex">
+												{% if wallpost.writer.profilePics %}
+													<img src="{{wallpost.writer.profilePics.url}}" alt="" style="width: 70px; height: 70px; border-radius: 35px;">
+												{% else %}
+													<img src="{% static 'index/media/default.png' %}" alt="" style="width: 70px; height: 70px; border-radius: 35px;">
+												{% endif %}
+											</div>
+											<div class="media-body">
+												{% if user.username != wallpost.writer.username %}
+													<a href="/profile/{{wallpost.writer}}"><h4>{{wallpost.writer.username}}</h4></a>
+												{% else %}
+													<a href="/profile/{{wallpost.writer}}"><h4>You</h4></a>
+												{% endif %}
+												<h5>{{wallpost.date}}</h5>
+												{% if wallpost.writer.username != user.username %}
+													{% if wallpost.writer.username in following %}
+														<a href="/unfollow/{{wallpost.writer.username}}"><span class="reply_btn">Unfollow</span></a>
+													{% else %}
+														<a href="/follow/{{wallpost.writer.username}}"><span class="reply_btn">Follow</span></a>
+													{% endif %}
+												{% endif %}
+											</div>
+										</div>
+										<p id="{{wallpost.pk}}text">{{wallpost.body}}</p>
+										
+									</div>
+									<span onclick="viewComment({{wallpost.pk}})" id="{{wallpost.pk}}" class="viewCommentbut">View comments</span>
+									<br><br>
+									<div class="review_item reply" id="{{wallpost.pk}}reply">
+										<h4>Comments({{wallpost.wallreply_set.count}})</h4>
+										{% if wallpost.wallreply_set.count %}
+											{% for wallcomment in wallpost.wallreply_set.all %}
+												<div class="media">
+													<div class="d-flex">
+														{% if wallcomment.writer.profilePics %}
+															<img src="{{wallcomment.writer.profilePics.url}}" style="width: 70px; height: 70px; border-radius: 35px;" alt="">
+														{% else %}
+															<img src="{% static 'index/media/default.png' %}" style="width: 70px; height: 70px; border-radius: 35px;" alt="">
+														{% endif %}
+													</div>
+													<div class="media-body">
+														{% if wallcomment.writer.username == user.username %}
+															<a href="/profile/{{wallcomment.writer.username}}"><h4>You</h4></a>
+														{% else %}
+															<a href="/profile/{{wallcomment.writer.username}}"><h4>{{wallcomment.writer.username}}</h4></a>
+														{% endif %}
+														<h5>{{wallcomment.date}}</h5>
+
+														{% if wallcomment.writer.username != user.username %}
+															{% if wallcomment.writer.username in following %}
+																<a href="/unfollow/{{wallcomment.writer.username}}"><span class="reply_btn">Unfollow</span></a>
+															{% else %}
+																<a href="/follow/{{wallcomment.writer.username}}"><span class="reply_btn">Follow</span></a>
+															{% endif %}
+														{% endif %}
+													</div>
+												</div>
+												<p>{{wallcomment.body}}</p>
+											{% endfor %}
+										{% else %}
+											<h4>No comment yet</h4>
+										{% endif %}
+										<div class="review_box">
+											<br>
+											<h5>Give a comment</h5>
+											<form class="row contact_form" action="/wall/writereply/{{wallpost.pk}}/" method="post" id="contactForm8" novalidate="novalidate">
+												{% csrf_token %}
+												<div class="col-md-12">
+													<div class="form-group">
+														<input type="text" class="form-control" id="name55" name="body" placeholder="Leave a reply">
+													</div>
+												</div>
+												
+												<div class="col-md-12 text-right">
+													<button type="submit" value="submit" class="btn submit_btn">Reply</button>
+												</div>
+											</form>
+											<br>
+										</div>
+									</div>
+								{% endfor %}
+							{% else %}
+								<h4>No comment on your wall for now.</h4>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="tab-pane fade" id="home" role="tabpanel" aria-labelledby="home-tab">
+				<div class="review_box">
+					<h4>Edit Profile</h4>
+					<form class="row contact_form" action="/update/editprofile/" method="post" id="contactForm1" novalidate="novalidate" enctype="multipart/form-data">
+						{% csrf_token %}
+						<!-- <div class="col-md-12">
+							<div class="form-group">
+								<input type="text" class="form-control" id="number" name="username" placeholder="Username" value="{{user.username}}">
+							</div>
+						</div> -->
+						<div class="col-md-12">
+							<div class="form-group">
+								<input type="text" class="form-control" id="name4" name="first_name" placeholder="First Name" value="{{user.first_name}}">
+							</div>
+						</div>
+						<div class="col-md-12">
+							<div class="form-group">
+								<input type="text" class="form-control" id="name5" name="last_name" placeholder="Last Name" value="{{user.last_name}}">
+							</div>
+						</div>
+						<div class="col-md-12">
+							<div class="form-group">
+								<input type="email" class="form-control" id="email" name="email" placeholder="Email Address" value="{{user.email}}">
+							</div>
+						</div>
+						
+						<div class="col-md-12">
+							<div class="form-group">
+								<input type="file" class="form-control" id="number1" name="profilePics">
+							</div>
+						</div>
+						<div class="col-md-12">
+							<div class="form-group">
+								<textarea class="form-control" name="aboutUser" id="description" rows="1" placeholder="Descripe Yourself">{{user.aboutUser}}</textarea>
+							</div>
+						</div>
+						<div class="col-md-12 text-right">
+							<button type="submit" value="submit" class="btn submit_btn">Update</button>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+				<h4>Change Password</h4>
+				<form class="row contact_form" action="/update/password/" method="post" id="contactForm2" novalidate="novalidate">
+					{% csrf_token %}
+					<div class="col-md-12">
+						<div class="form-group">
+							<input type="password" class="form-control" id="name" name="currentPassword" placeholder="Current Password">
+						</div>
+					</div>
+					<div class="col-md-12">
+						<div class="form-group">
+							<input type="password" class="form-control" id="name1" name="password" placeholder="New Password">
+						</div>
+						<div class="form-group">
+							<input type="password" class="form-control" id="name2" name="newPassword2" placeholder="Confirm Password">
+						</div>
+						
+					</div>
+					<div class="col-md-12 text-right">
+						<button type="submit" value="submit" class="btn submit_btn">Change</button>
+					</div>
+				</form>
+			</div>
+			<div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+				<h3>Your Favorites ({{user.favour_set.count}})</h3>
+				{% if user.favour_set.count %}
+					{% for favouredpost in favourites %}
+						<div class="review_box">
+							<div class="review_item">
+								<div class="media">
+									<div class="d-flex">
+										<a href="/post/{{favouredpost.post.postType}}/{{favouredpost.post.pk}}">
+										<img src="/static/index/img/background/{{favouredpost.post.background}}" alt="" style="width: 70px; height: 70px; border-radius: 35px;"></a>
+									</div>
+									<div class="media-body">
+
+										<h4>Title: <a href="/post/{{favouredpost.post.pk}}">{{favouredpost.post.title}}</a> By <a href="/profile/{{favouredpost.post.user.username}}">{{favouredpost.post.user.username}}</a></h4>
+										<h4>Type(Category): <a href="/post/{{favouredpost.post.postType}}/all">{{favouredpost.post.postType}}</a> ({{favouredpost.post.category}})</h4>
+										<h5>Date: {{ favouredpost.post.date }}</h5>
+
+
+										<a class="reply_btn" href="/post/unfavour/{{favouredpost.post.pk}}">Remove</a>
+									</div>
+								</div>
+								<p>{{favouredpost.post.body}}</p>
+							</div>
+							<span onclick="viewComment({{favouredpost.pk}})" id="{{favouredpost.pk}}" class="viewCommentbut">View comments</span>
+									<br><br>
+
+									<!-- Wher -->
+									<div class="review_item reply" id="{{favouredpost.pk}}reply">
+
+										{% if favouredpost.post.postcomment_set.count %}
+											<h4>Comments({{favouredpost.post.postcomment_set.count}})</h4>
+											{% for comment in favouredpost.post.postcomment_set.all %}
+
+												<div class="media">
+													<div class="d-flex">
+														{% if comment.author.profilePics %}
+															<img src="{{comment.author.profilePics.url}}" alt="" style="width: 70px; height: 70px; border-radius: 35px;">
+														{% else %}
+															<img src="{% static 'index/media/default.png' %}" alt="" style="width: 70px; height: 70px; border-radius: 35px;">
+														{% endif %}
+													</div>
+													<div class="media-body">
+														{% if comment.author.username == user.username %}
+															<a href="/profile/{{comment.author.username}}"><h4>You</h4></a>
+														{% else %}
+															<a href="/profile/{{comment.author.username}}"><h4>{{comment.author.username}}</h4></a>
+
+															{% if comment.author.username in following %}
+																<a href="/unfollow/{{comment.author.username}}"><span class="reply_btn">Unfollow</span></a>
+															{% else %}
+																<a href="/follow/{{comment.author.username}}"><span class="reply_btn">Follow</span></a>
+															{% endif %}
+														{% endif %}
+														<h5>{{comment.date}}</h5>
+													</div>
+												</div>
+												<p>{{comment.body}}</p>
+												<br>
+											{% endfor %}
+											
+										{% else %}
+											<h4>No comment yet</h4>
+										{% endif %}
+										<div class="review_box">
+										<br>
+										<h5>Give a comment</h5>
+										<form class="row contact_form" action="/post/{{favouredpost.post.pk}}/givecomment/" method="post" id="contactForm9" novalidate="novalidate">
+											{% csrf_token %}
+											<div class="col-md-12">
+												<div class="form-group">
+													<input type="text" class="form-control" id="name6" name="body" placeholder="Leave a reply">
+												</div>
+											</div>
+											
+											<div class="col-md-12 text-right">
+												<button type="submit" value="submit" class="btn submit_btn">Reply</button>
+											</div>
+										</form>
+										<br>
+									</div>
+								</div>
+							<!-- <div class="review_item reply">
+								<div class="media">
+									<div class="d-flex">
+										<img src="{% static '/img/product/single-product/review-2.png' %}" alt="">
+									</div>
+									<div class="media-body">
+										<h4>Alan Turing</h4>
+										<h5>05th Sep, 2017 at 05:56 pm</h5>
+										<a class="reply_btn" href="#">Remove</a>
+									</div>
+								</div>
+								<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo</p>
+							</div> -->
+						</div>
+					{% endfor %}
+				{% else %}
+					<h4> You have not favoured a post </h4>
+				{% endif %}
+			</div>
+			<div class="tab-pane fade" id="follower" role="tabpanel" aria-labelledby="follower-tab">
+				<div class="row">
+					<div class="col-lg-6">
+						<div class="comment_list">
+							<h3>Followers({{follower_object | length}})</h3>
+							<br>
+							{% if follower_object %}
+								{% for follower in follower_object %}
+
+									<div class="review_item">
+										<div class="media">
+											<div class="d-flex">
+												{% if follower.member.profilePics %}
+													<img src="{{follower.member.profilePics.url}}" alt="" class="small_propics">
+												{% else %}
+													<img src="{% static 'index/media/default.png' %}" alt="" class="small_propics">
+												{% endif %}
+											</div>
+											<div class="media-body">
+												<a href="/profile/{{follower.member.username}}"><h4>{{follower.member.username}}</h4></a>
+												<h5>Date of Followship:</h5>
+												<h5>{{follower.date}}</h5>
+
+												{% if follower.member.username in following %}
+													<a href="/unfollow/{{follower.member.username}}"><span class="reply_btn">Unfollow</span></a>
+												{% else %}
+													<a href="/follow/{{follower.member.username}}"><span class="reply_btn">Follow</span></a>
+												{% endif %}
+											</div>
+										</div>
+									</div>
+									<br>
+								{% endfor %}
+							{% else %}
+								<h4>You have no followers for now.</h4>
+							{% endif %}
+						</div>
+					</div>
+					<div class="col-lg-6">
+						<div class="comment_list">
+							<h3>Following({{am_following | length}})</h3>
+							<br>
+							{% if am_following %}
+								{% for fellowship in am_following %}
+									<div class="review_item">
+										<div class="media">
+											<div class="d-flex">
+												{% if fellowship.follow.profilePics %}
+													<img src="{{fellowship.follow.profilePics.url}}" alt="" class="small_propics">
+												{% else %}
+													<img src="{% static 'index/media/default.png' %}" alt="" class="small_propics">
+												{% endif %}
+											</div>
+											<div class="media-body">
+												<a href="/profile/{{fellowship.follow.username}}"><h4>{{fellowship.follow.username}}</h4></a>
+												<h5>Date of Followship:</h5>
+												<h5>{{fellowship.date}}</h5>
+												<a href="/unfollow/{{fellowship.follow.username}}"><span class="reply_btn">Unfollow</span></a>
+											</div>
+										</div>
+									</div>
+									<br>
+							{% endfor %}
+							{% else %}
+								<h4>You have not started following people.</h4>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="tab-pane fade show active" id="review" role="tabpanel" aria-labelledby="review-tab">
+				<h3>Your Posts ({{ user.post_set.count }})</h3>
+				<div class="row">
+					<div class="col-lg-6">
+						<div class="comment_list">
+							{% if user.post_set.count %}
+								{% for post in posts %}
+
+								<div class="review_item">
+									<div class="media">
+										<div class="d-flex">
+											<img src="/static/index/img/background/{{post.background}}" alt="" style="width: 70px; height: 70px; border-radius: 35px;">
+										</div>
+										<div class="media-body">
+											<a href="/post/{{post.pk}}"><h4>{{post.title}}</h4></a>
+											<a href="/post/{{post.postType}}/all"><h4>{{post.postType}}</a> ({{post.category}})</h4>
+											<h5>{{ post.date }}</h5>
+											<span class="reply_btn" onclick="editPost({{ post.pk }})" id="{{post.pk}}executor">Edit Post</span>
+										</div>
+									</div>
+									{% if post.edited %}
+										<p>Edited</p>
+									{% endif %}
+									<p id="{{ post.pk }}text">{{ post.body }}</p>
+
+									<div id="{{ post.pk }}edit" class="reply">
+										<br>
+										<form class="row contact_form" action="/post/{{post.pk}}/editpost/" method="post" id="contactForm3" novalidate="novalidate">
+											{% csrf_token %}
+											<div class="col-md-12">
+												<div class="form-group">
+													<input type="text" class="form-control" id="name7" name="title" placeholder="Title" value="{{post.title}}">
+												</div>
+											</div>
+											<div class="col-md-12">
+												<div class="form-group">
+													<select class="form-control" id="text3" name="postType" value="{{post.postType}}">
+
+														<option value="Joke">Joke</option>
+														<option value="Quote">Quote</option>
+														<option value="Motivation">Motivation</option>
+														<option value="Puzzle">Puzzle</option>
+														<option value="Fact">Fact</option>
+
+													</select>
+												</div>
+											</div>
+											<div class="col-md-12" style="margin-top: 10px;">
+												<div class="form-group">
+													<input type="text" class="form-control" id="number7" name="category" placeholder="Educational" value="{{post.category}}">
+												</div>
+											</div>
+											<div class="col-md-12">
+												<div class="form-group">
+													<textarea class="form-control" name="body" id="message6" rows="1" placeholder="Write your post" required>{{post.body}}</textarea>
+												</div>
+											</div>
+											<div class="col-md-12 text-right">
+												<button type="submit" value="submit" class="btn submit_btn">Edit</button>
+											</div>
+										</form>
+									</div>
+								</div>
+								<span onclick="viewComment({{post.pk}})" id="{{ post.pk }}" class="viewCommentbut">View comments</span>
+								<br><br>
+
+								<!-- Wher -->
+								<div class="review_item reply" id="{{ post.pk }}reply" style="display: none;">
+									{% if post.postcomment_set.count %}
+										<h4>Comments({{post.postcomment_set.count}})</h4>
+										{% for comment in post.postcomment_set.all %}
+
+											<div class="media">
+												<div class="d-flex">
+													{% if comment.author.profilePics %}
+														<img src="{{comment.author.profilePics.url}}" alt="" class="small_propics">
+													{% else %}
+														<img src="{% static 'index/media/default.png' %}" alt="" class="small_propics">
+													{% endif %}
+												</div>
+												<div class="media-body">
+													{% if comment.author.username == user.username %}
+														<a href="/profile/{{comment.author.username}}"><h4>You</h4></a>
+													{% else %}
+														<a href="/profile/{{comment.author.username}}"><h4>{{comment.author}}</h4></a>
+														
+														{% if comment.author != user.username %}
+															{% if comment.author.username in following %}
+
+																<a href="/unfollow/{{comment.author.username}}"><span class="reply_btn">Unfollow</span></a>
+															{% else %}
+																<a href="/follow/{{comment.author.username}}"><span class="reply_btn">Follow</span></a>
+															{% endif %}
+														{% endif %}
+													{% endif %}
+													<h5>{{comment.date}}</h5>
+												</div>
+											</div>
+											<p>{{comment.body}}</p>
+											<br>
+										{% endfor %}
+										
+									{% else %}
+										<h4>No comment yet</h4>
+									{% endif %}
+									<div class="review_box">
+									<br>
+									<h5>Give a comment</h5>
+									<form class="row contact_form" action="/post/{{post.pk}}/givecomment/" method="post" id="contactForm4" novalidate="novalidate">
+										{% csrf_token %}
+										<div class="col-md-12">
+											<div class="form-group">
+												<input type="text" class="form-control" id="name3" name="body" placeholder="Leave a reply">
+											</div>
+										</div>
+										
+										<div class="col-md-12 text-right">
+											<button type="submit" value="submit" class="btn submit_btn">Reply</button>
+										</div>
+									</form>
+									<br>
+								</div>
+								</div>
+
+								{% endfor %}
+
+							{% else %}
+								<h4>You have never given a post</h4>
+							{% endif %}
+						</div>
+					</div>
+					
+					<!-- Add post area -->
+					<div class="col-lg-6">
+						<div class="review_box">
+							<p id="app"></p>
+							<h4>Add a Post</h4>
+							<form class="row contact_form" action="/post/createpost/" method="post" id="contactForm6" novalidate="novalidate">
+								{% csrf_token %}
+								<div class="col-md-12">
+									<div class="form-group">
+										<input type="text" class="form-control" id="name44" name="title" placeholder="Title" required>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="form-group">
+										<select class="form-control" id="text33" name="postType">
+
+											<option value="Joke">Joke</option>
+											<option value="Quote">Quote</option>
+											<option value="Motivation">Motivation</option>
+											<option value="Puzzle">Puzzle</option>
+											<option value="Fact">Fact</option>
+
+										</select>
+									</div>
+								</div>
+								<div class="col-md-12" style="margin-top: 10px;">
+									<div class="form-group">
+										<input type="text" class="form-control" id="number6" name="category" placeholder="Educational" required>
+									</div>
+								</div>
+								<!-- <div class="col-md-12" style="margin-top: 10px;">
+									<div class="form-group">
+										<input type="file" class="form-control" id="number4" name="postPic">
+									</div>
+								</div> -->
+								<div class="col-md-12">
+									<div class="form-group">
+										<textarea class="form-control" name="body" id="message4" rows="1" placeholder="Write your post" required></textarea>
+									</div>
+								</div>
+								<div class="col-md-12 text-right">
+									<button type="submit" value="submit" class="btn submit_btn">Add post</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endautoescape %}
+<!--================End Product Description Area =================-->
+
+<!--================ start footer Area  =================-->	
+
+
+<!--================ End footer Area  =================-->
+
+<!-- Dac javascript -->
+<script type="text/javascript" src="{% static '/js/dac.js' %}"></script>
+
+{% endblock %}
