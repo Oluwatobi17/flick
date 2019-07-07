@@ -81,12 +81,24 @@ WSGI_APPLICATION = 'flense.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'flickDB',
+            'USER': 'ganiu',
+            'PASSWORD': 'ganiu123456',
+            'HOST': 'localhost',
+            'PORT': ''
+        }
+    }
 
 
 # Password validation
@@ -142,13 +154,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'index/static/index/media')
 MEDIA_URL = '/static/index/media/'
 
 # PROJECT_ROOT   =   os.path.join(os.path.abspath(__file__))
-# STATIC_ROOT  =   os.path.join(PROJECT_ROOT, 'staticfiles')
+STATIC_ROOT  =   os.path.join(BASE_DIR, 'static_root')
 # STATIC_URL = '/static/'
 
 # # Extra lookup directories for collectstatic to find static files
-# STATICFILES_DIRS = (
-#     os.path.join(PROJECT_ROOT, 'static'),
-# )
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static_in_env')]
 
 # #  Add configuration for static files storage using whitenoise
 # STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
