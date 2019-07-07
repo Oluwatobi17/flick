@@ -92,8 +92,8 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'flickDB',
-            'USER': 'Gadolium',
+            'NAME': 'flickdb',
+            'USER': 'gadolium',
             'PASSWORD': 'ganiu123456',
             'HOST': 'localhost',
             'PORT': ''
