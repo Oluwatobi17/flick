@@ -94,7 +94,7 @@ else:
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'flickdb',
             'USER': 'Gadolium',
-            'PASSWORD': 'ganiu123456',
+            'PASSWORD': '',
             'HOST': 'localhost',
             'PORT': ''
         }
