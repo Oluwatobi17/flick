@@ -6,7 +6,7 @@ from index.models import User
 
 class Post(models.Model):
 	user = models.ForeignKey(User)
-	title = models.CharField(max_length=250, default='No set')
+	title = models.CharField(max_length=250, default='Not set')
 	body = models.TextField()
 	postType = models.CharField(max_length=100)
 	category = models.CharField(max_length=100)
@@ -15,7 +15,7 @@ class Post(models.Model):
 	date = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
-		return self.title
+		return self.title+'-'+self.postType
 
 class Postcomment(models.Model):
 	targetpost = models.ForeignKey(Post, default=1)

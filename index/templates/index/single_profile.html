@@ -76,15 +76,15 @@
 							<p>No description about {{userdetails.username}} yet</p>
 						{% endif %}
 						
-						<div class="card_area">
+						<div class="card_area media-body">Like page
 							<span title="{{userdetails.likepage_set.count}} page likes">{{userdetails.likepage_set.count}}</span>
-							<a class="icon_btn" href="/likepage/{{userdetails.username}}" title="Like {{userdetails.username}}'s page"><i class="lnr lnr lnr-diamond"></i></a>
+							<a class="icon_btn" href="#likepage" title="Like {{userdetails.username}}'s page"><i class="lnr lnr lnr-diamond" data-username="{{userdetails.username}}"></i></a>
 
 							{% if userdetails.username != loggedUser.username %}
 								{% if userdetails.username in myfollower_object %}
-									<a class="main_btn" href="/unfollow/{{userdetails.username}}">Unfollow</a>
+									<a href="#u" data-action="unfollow" class="main_btn fellowship {{userdetails.username}}" data-username={{userdetails.username}}>Unfollow</a>
 								{% else %}
-									<a class="main_btn" href="/follow/{{userdetails.username}}">Follow</a>
+									<a href="#u" data-action="follow" class="main_btn fellowship {{userdetails.username}}" data-username={{userdetails.username}}>Follow</a>
 								{% endif %}
 							{% endif %}
 							
@@ -102,7 +102,7 @@
 		<div class="container">
 			<ul class="nav nav-tabs" id="myTab" role="tablist">
 				<li class="nav-item">
-				<a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Wall</a>
+				<a class="nav-link" id="wall-tab" data-toggle="tab" href="#wall" role="tab" aria-controls="wall" aria-selected="true">Wall</a>
 				</li>
 				
 				<li class="nav-item">
@@ -116,17 +116,19 @@
 				</li>
 			</ul>
 			<div class="tab-content" id="myTabContent">
-				<div class="tab-pane fade" id="home" role="tabpanel" aria-labelledby="home-tab">
-					<h3>{{userdetails}}'s Wall({{wall | length}})</h3>
+				<div class="tab-pane fade" id="wall" role="tabpanel" aria-labelledby="wall-tab">
+					<h3>{{userdetails}}'s Wall(<span id="wallcount">{{wall | length}}</span>)</h3>
 					<div class="row">
 						<!-- Write on your wall -->
 						<div class="col-lg-6">
 							<div class="review_box">
-								<form class="row contact_form" action="/wall/writeon/{{userdetails.username}}/" method="post" id="contactForm" novalidate="novalidate">
-									{% csrf_token %}
+								<form class="row contact_form" id="contactForm7" novalidate="novalidate" onsubmit="return false;">
+									<p style="display: none;" id="mywalltoken">{{ csrf_token }}</p>
+									<input type="hidden" id="user" value="{{ userdetails.username }}">
+									<input type="hidden" id="wall_writer" value="{{ loggedUser.pk }}">
 									<div class="col-md-12">
 										<div class="form-group">
-											<textarea class="form-control" name="body" id="message" rows="1" placeholder="Write on {{userdetails.username}} wall"></textarea>
+											<textarea class="form-control" name="body" id="message5" rows="1" placeholder="Write on {{userdetails.username}} wall"></textarea>
 										</div>
 									</div>
 									<div class="col-md-12 text-right">
@@ -137,6 +139,78 @@
 						</div>
 						<div class="col-lg-6">
 							<div class="comment_list">
+								<div class="newWallTemplateClass">
+									<!-- Mustache template for new wall post -->
+									<template id="newWallPostTemplate">
+										{% verbatim %}
+										<div class="review_item">
+											<div class="media">
+												<div class="d-flex">
+													<img src="{{profilePics}}" alt="" style="width: 50px; height: 50px; border-radius: 25px;">
+												</div>
+												<div class="media-body">
+													<a href="/profile/{{username}}"><h4>{{username}}</h4></a>
+													<!-- <h5>{{wallpost.date}}</h5> -->
+													
+													<h5>{{ date }}</h5>
+												</div>
+											</div>
+											<p id="{{pk}}text">{{ body }}</p>
+											
+										</div>
+										
+										<span onclick="viewComment({{id}})" id="{{id}}" class="viewCommentbut">View comments</span>
+										<br><br>
+										<div class="review_item reply" id="{{id}}reply">
+											<h4>Comments(<span class="commentCount">0</span>)</h4>
+											<div class="wallreplycontainer">
+												<!-- Wall reply template is below -->
+											</div>
+											<h4 class="nocomment">No comment yet</h4>
+											<div class="review_box">
+												<br>
+												<h5>Give a comment</h5>
+												<form class="row contact_form wallreply" novalidate="novalidate" onsubmit="return false;" data-identify="{{id}}replywallform">
+													<input type="hidden" id="reply_wall" value="{{wall}}">
+												{% endverbatim %}
+
+													<p style="display: none;" class="wallreplytoken">{{ csrf_token }}</p>
+
+													<input type="hidden" {% verbatim %} id="{{id}}reply_writer" {% endverbatim %} value="{{loggedUser.pk}}">
+													<div class="col-md-12">
+														<div class="form-group">
+															{% verbatim %}
+															<input type="text" class="form-control" placeholder="Leave a reply" id="{{id}}wallreplybody">
+														</div>
+													</div>
+													
+													<div class="col-md-12 text-right">
+														<button type="submit" value="submit" class="btn submit_btn">Reply</button>
+													</div>
+												</form>
+												<br>
+											</div>
+										</div>
+									</template>
+									<!-- Template ends here. -->
+									<!-- Wall reply template starts here -->
+									<template id="wallReplyTemplate">
+										<div class="media">
+											<div class="d-flex">
+												<img src="{{profilePics}}" style="width: 50px; height: 50px; border-radius: 25px;" alt="">
+												
+											</div>
+											<div class="media-body">
+												<a href="/profile/{{writer}}"><h4>{{writer}}</h4></a>
+
+												<h5>{{date}}</h5>
+											</div>
+										</div>
+										<p>{{replybody}}</p>
+										{% endverbatim %}
+									</template>
+									<!-- Ends here -->
+								</div>
 								{% if wall %}
 									{% for wallpost in wall %}
 										<div class="review_item">
@@ -157,9 +231,9 @@
 													{% if wallpost.writer.username != user.username %}
 
 														{% if wallpost.writer.username in myfollower_object %}
-															<a href="/unfollow/{{wallpost.writer.username}}"><span class="reply_btn">Unfollow</span></a>
+															<a href="#u" data-action="unfollow" class="reply_btn fellowship {{wallpost.writer.username}}" data-username={{wallpost.writer.username}}>Unfollow</a>
 														{% else %}
-															<a href="/follow/{{wallpost.writer.username}}"><span class="reply_btn">Follow</span></a>
+															<a href="#u" data-action="follow" class="reply_btn fellowship {{wallpost.writer.username}}" data-username={{wallpost.writer.username}}>Follow</a>
 														{% endif %}
 													{% endif %}
 												</div>
@@ -170,46 +244,68 @@
 										<span onclick="viewComment({{wallpost.pk}})" id="{{wallpost.pk}}" class="viewCommentbut">View comments</span>
 										<br><br>
 										<div class="review_item reply" id="{{wallpost.pk}}reply">
-											<h3>Comments({{wallpost.wallreply_set.count}})</h3>
-											{% if wallpost.wallreply_set.count %}
-												{% for wallcomment in wallpost.wallreply_set.all %}
+											<h3>Comments(<span class="commentCount">{{wallpost.wallreply_set.count}}</span>)</h3>
+
+											<div class="wallreplycontainer">
+												{% verbatim %}
+												<template id="wallReplyTemplate">
 													<div class="media">
-														{% if wallcomment.writer.profilePics %}
-															<div class="d-flex">
-																<img src="{{wallcomment.writer.profilePics.url}}" alt="" class="small_propics">
-															</div>
-														{% else %}
-															<div class="d-flex">
-																<img src="{% static 'index/media/default.png' %}" alt="" class="small_propics">
-															</div>
-														{% endif %}
+														<div class="d-flex">
+															<img src="{{profilePics}}" style="width: 50px; height: 50px; border-radius: 25px;" alt="">
+															
+														</div>
 														<div class="media-body">
-															<a href="#"><h4>{{wallcomment.writer}}</h4></a>
-															<h5>{{wallcomment.date}}</h5>
+															<a href="/profile/{{writer}}"><h4>{{writer}}</h4></a>
 
-
-															{% if wallcomment.writer.username != user.username %}
-																{% if wallcomment.writer in myfollower_object %}
-																	<a href="/unfollow/{{wallcomment.writer}}"><span class="reply_btn">Unfollow</span></a>
-																{% else %}
-																	<a href="/follow/{{wallcomment.writer}}"><span class="reply_btn">Follow</span></a>
-																{% endif %}
-															{% endif %}
+															<h5>{{date}}</h5>
 														</div>
 													</div>
-													<p>{{wallcomment.body}}</p>
-												{% endfor %}
-											{% else %}
-												<h4>No comment yet</h4>
-											{% endif %}
+													<p>{{replybody}}</p>
+												{% endverbatim %}
+												</template>
+
+												{% if wallpost.wallreply_set.count %}
+													{% for wallcomment in wallpost.wallreply_set.all %}
+														<div class="media">
+															{% if wallcomment.writer.profilePics %}
+																<div class="d-flex">
+																	<img src="{{wallcomment.writer.profilePics.url}}" alt="" class="small_propics">
+																</div>
+															{% else %}
+																<div class="d-flex">
+																	<img src="{% static 'index/media/default.png' %}" alt="" class="small_propics">
+																</div>
+															{% endif %}
+															<div class="media-body">
+																<a href="/profile/{{wallcomment.writer.username}}"><h4>{{wallcomment.writer.username}}</h4></a>
+																<h5>{{wallcomment.date}}</h5>
+
+
+																{% if wallcomment.writer.username != user.username %}
+																	{% if wallcomment.writer.username in myfollower_object %}
+																		<a href="#u" data-action="unfollow" class="reply_btn fellowship {{wallcomment.writer}}" data-username={{wallcomment.writer}}>Unfollow</a>
+																	{% else %}
+																		<a href="#u" data-action="follow" class="reply_btn fellowship {{wallcomment.writer}}" data-username={{wallcomment.writer}}>Follow</a>
+																	{% endif %}
+																{% endif %}
+															</div>
+														</div>
+														<p>{{wallcomment.body}}</p>
+													{% endfor %}
+												{% else %}
+													<h4>No comment yet</h4>
+												{% endif %}
+											</div>
 											<div class="review_box">
 												<br>
 												<h5>Give a comment</h5>
-												<form class="row contact_form" action="/wall/writereply/{{wallpost.pk}}/" method="post" id="contactForm" novalidate="novalidate">
-													{% csrf_token %}
+												<form class="row contact_form wallreply" onsubmit="return false;" data-identify="{{wallpost.pk}}replywallform" id="contactForm" novalidate="novalidate">
+													
+													<p style="display: none;" class="wallreplytoken">{{ csrf_token }}</p>
+													<input type="hidden" class="reply_writer" value="{{loggedUser.pk}}" id="{{wallpost.pk}}reply_writer">
 													<div class="col-md-12">
 														<div class="form-group">
-															<input type="text" class="form-control" id="name3" name="body" placeholder="Leave a reply">
+															<input type="text" class="form-control" id="{{wallpost.pk}}wallreplybody" placeholder="Leave a reply">
 														</div>
 													</div>
 													
@@ -230,7 +326,8 @@
 				</div>
 				
 				<div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-					<h3>{{userdetails.username}}'s Favourites({{userdetails.favour_set.count}})</h3>
+					<h3>{{userdetails.username}}'s Favourites(<span class="favCount">{{userdetails.favour_set.count}}</span>)</h3>
+
 					{% if userdetails.favour_set.count %}
 						{% for favouredpost in favourites %}
 							<div class="review_box">
@@ -251,82 +348,90 @@
 												<h5>Date: {{ favouredpost.post.date }}</h5>
 
 											</div>
-
-											<a class="reply_btn" href="/post/favour/{{favouredpost.post.pk}}">Favour</a>
-											
+											{% if favouredpost in loggedUser.favour_set.all %}
+												<a class="reply_btn Sinfavouring" href="#rem" data-action="unfavour" data-postid="{{favouredpost.post.pk}}">Remove</a>
+											{% else %}
+												<a class="reply_btn Sinfavouring" href="#fav" data-action="favour" data-postid="{{favouredpost.post.pk}}">Favour</a>
+											{% endif %}
 										</div>
 									</div>
 									<p>{{favouredpost.post.body}}</p>
 								</div>
-								<span onclick="viewComment({{favouredpost.post.pk}})" id="{{ favouredpost.post.pk }}" class="viewCommentbut">View comments</span>
-										<br><br>
+								<span onclick="viewComment(2{{favouredpost.post.pk}})" id="{{ favouredpost.pk }}" class="viewCommentbut">View comments</span>
+									<br><br>
 
-										<!-- Wher -->
-										<div class="review_item reply" id="{{ favouredpost.post.pk }}reply">
-											{% if favouredpost.post.postcomment_set.count %}
-												<h3>Comments</h3>
-												{% for comment in favouredpost.post.postcomment_set.all %}
-
-													<div class="media">
-														<div class="d-flex">
-															{% if comment.author.profilePics %}
-																<img src="{{comment.author.profilePics.url}}" alt="" class="small_propics">
-															{% else %}
-																<img src="{% static 'index/media/default.png' %}" alt="" class="small_propics">
-															{% endif %}
-														</div>
-														<div class="media-body">
-															{% if comment.author.username == user.username %}
-																<a href="#"><h4>You</h4></a>
-															{% else %}
-																<a href="/profile/{{comment.author.username}}"><h4>{{comment.author.username}}</h4></a>
-																
-																{% if comment.author.username in myfollower_object %}
-																	<a href="/unfollow/{{follower.member}}"><span class="reply_btn">Unfollow</span></a>
-																{% else %}
-																	<a href="/follow/{{follower.member}}"><span class="reply_btn">Follow</span></a>
-																{% endif %}
-															{% endif %}
-															<h5>{{comment.date}}</h5>
-														</div>
+									<!-- Wher -->
+									<div class="review_item reply" id="2{{ favouredpost.post.pk }}reply">
+										<h4>Comments (<span class="favpostCount">{{favouredpost.post.postcomment_set.count}}</span>)</h4>
+										<div class="favouredpostClass">
+											<template id="postCommentTemplate">
+												<div class="media">
+													{% verbatim %}
+													<div class="d-flex">
+														<img src="{{profilePic}}" alt="" class="small_propics">
 													</div>
-													<p>{{comment.body}}</p>
-													<br>
-												{% endfor %}
-												
-											{% else %}
-												<h4>No comment yet</h4>
-											{% endif %}
-											<div class="review_box">
-											<br>
-											<h5>Give a comment</h5>
-											<form class="row contact_form" action="/post/{{favouredpost.post.pk}}/givecomment/" method="post" id="contactForm" novalidate="novalidate">
-												{% csrf_token %}
-												<div class="col-md-12">
-													<div class="form-group">
-														<input type="text" class="form-control" id="name3" name="body" placeholder="Leave a reply">
+													<div class="media-body">
+														<a href="/profile/{{author}}"><h4>You</h4></a>
+														<h5>{{comDate}}</h5>
 													</div>
 												</div>
-												
-												<div class="col-md-12 text-right">
-													<button type="submit" value="submit" class="btn submit_btn">Reply</button>
+												<p>{{comBody}}</p>
+												<br>
+												{% endverbatim %}
+											</template>
+										</div>
+										{% if favouredpost.post.postcomment_set.count %}
+											{% for comment in favouredpost.post.postcomment_set.all %}
+
+												<div class="media">
+													<div class="d-flex">
+														{% if comment.author.profilePics %}
+															<img src="{{comment.author.profilePics.url}}" alt="" class="small_propics">
+														{% else %}
+															<img src="{% static 'index/media/default.png' %}" alt="" class="small_propics">
+														{% endif %}
+													</div>
+													<div class="media-body">
+														{% if comment.author.username == user.username %}
+															<a href="#"><h4>You</h4></a>
+														{% else %}
+															<a href="/profile/{{comment.author.username}}"><h4>{{comment.author.username}}</h4></a>
+															
+															{% if comment.author.username in myfollower_object %}
+																<a href="#u" data-action="unfollow" class="reply_btn fellowship {{follower.member}}" data-username={{follower.member}}>Unfollow</a>
+															{% else %}
+																<a href="#u" data-action="follow" class="reply_btn fellowship {{follower.member}}" data-username={{follower.member}}>Follow</a>
+															{% endif %}
+														{% endif %}
+														<h5>{{comment.date}}</h5>
+													</div>
 												</div>
-											</form>
-											<br>
-										</div>
+												<p>{{comment.body}}</p>
+												<br>
+											{% endfor %}
+										
+										{% endif %}
+										<div class="review_box">
+										<br>
+
+										<h5>Give a comment</h5>
+										<form class="row contact_form favourComment" data-postid={{favouredpost.post.pk}} onsubmit="return false;" novalidate="novalidate">
+											<input type="hidden" class="form-control targetpost" value="{{favouredpost.post.pk}}" id="{{favouredpost.post.pk}}favtargetpost">
+											<div class="col-md-12">
+												<div class="form-group">
+													<input type="text" class="form-control" id="{{favouredpost.post.pk}}favcommentbody" placeholder="Leave a reply">
+												</div>
+											</div>
+											
+											<input type="hidden" class="form-control author" id="{{favouredpost.post.pk}}favauthor" value="{{user.pk}}">
+
+											<p style="display: none;" id="favourcommenttoken">{{ csrf_token }}</p>
+											<div class="col-md-12 text-right">
+												<button type="submit" value="submit" class="btn submit_btn">Reply</button>
+											</div>
+										</form>
+										<br>
 									</div>
-								<div class="review_item reply">
-									<div class="media">
-										<div class="d-flex">
-											<img src="{% static '/img/product/single-product/review-2.png' %}" alt="">
-										</div>
-										<div class="media-body">
-											<h4>Alan Turing</h4>
-											<h5>05th Sep, 2017 at 05:56 pm</h5>
-											<a class="reply_btn" href="#">Remove</a>
-										</div>
-									</div>
-									<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo</p>
 								</div>
 							</div>
 						{% endfor %}
@@ -363,10 +468,11 @@
 												<h5>{{follower.date}}</h5>
 
 												{% if follower.member.username != loggedUser.username %}
-													{% if follower.follow in my_followering %}
-														<a href="/unfollow/{{follower.member.username}}"><span class="reply_btn">Unfollow</span></a>
+													{% if follower.member.username in myfollower_object %}
+
+														<a href="#u" data-action="unfollow" class="reply_btn fellowship {{follower.member.username}}" data-username={{follower.member.username}}>Unfollow</a>
 													{% else %}
-														<a href="/follow/{{follower.member.username}}"><span class="reply_btn">Follow</span></a>
+														<a href="#u" data-action="follow" class="reply_btn fellowship {{follower.member.username}}" data-username={{follower.member.username}}>Follow</a>
 													{% endif %}
 												{% endif %}
 											</div>
@@ -379,10 +485,29 @@
 							{% endif %}
 						</div>
 					</div>
-					<div class="col-lg-6">
-						<div class="comment_list">
-							<h3>Following({{his_following | length}})</h3>
+					<div class="col-lg-6 following">
+						<h3>Following({{his_following | length}})</h3>
+						<br>
+						<template id="followingTemplate">
+							<div class="review_item">
+								<div class="media">
+									<div class="d-flex">
+										{% verbatim %}
+										<img src="{{profilePics}}" alt="" class="small_propics">
+									</div>
+									<div class="media-body">
+										<a href="/profile/{{username}}">
+											<h4>{{username}}</h4></a>
+										<h5>Date of Followship:</h5>
+										<h5>{{date}}</h5>
+										<a href="#u" data-action="unfollow" class="reply_btn fellowship {{username}}" data-username={{username}}>Unfollow</a>
+									</div>
+									{% endverbatim %}
+								</div>
+							</div>
 							<br>
+						</template>
+						<div class="comment_list">
 							{% if his_following %}
 								{% for fellowship in his_following %}
 									<div class="review_item">
@@ -404,9 +529,9 @@
 												<h5>{{fellowship.date}}</h5>
 												{% if fellowship.follow.username != loggedUser.username %}
 													{% if fellowship.follow.username in myfollower_object %}
-														<a href="/unfollow/{{fellowship.follow.username}}"><span class="reply_btn">Unfollow</span></a>
+														<a href="#u" data-action="unfollow" class="reply_btn fellowship {{fellowship.follow.username}}" data-username={{fellowship.follow.username}}>Unfollow</a>
 													{% else %}
-														<a href="/follow/{{fellowship.follow.username}}"><span class="reply_btn">Follow</span></a>
+														<a href="#u" data-action="follow" class="reply_btn fellowship {{fellowship.follow.username}}" data-username={{fellowship.follow.username}}>Follow</a>
 													{% endif %}
 												{% endif %}
 											</div>
@@ -437,7 +562,12 @@
 												<h4>Type(Category): <a href="/post/{{post.postType}}/all">{{post.postType}}</a> ({{post.category}})</h4>
 												<h5>Date: {{ post.date }}</h5>
 											</div>
-											<a class="reply_btn" href="/post/favour/{{post.pk}}">Favour</a>
+<!-- 
+											{% if post in loggedUser.favour_set.all %}
+												<a class="reply_btn Sinfavouring" href="#rem" data-action="unfavour" data-postid="{{post.pk}}">Remove</a>
+											{% else %}
+												<a class="reply_btn Sinfavouring" href="#fav" data-action="favour" data-postid="{{post.pk}}">Favour</a>
+											{% endif %} -->
 										</div>
 
 									</div>
@@ -449,6 +579,7 @@
 									
 									<div class="review_item reply" id="{{ post.pk }}reply" style="display: none;">
 										<h4>Comments({{post.postcomment_set.count}})</h4>
+
 										{% if post.postcomment_set.count %}
 											{% for comment in post.postcomment_set.all %}
 												
@@ -470,28 +601,29 @@
 														<h5>{{comment.date}}</h5>
 														{% if comment.author.username != loggedUser.username %}
 															{% if comment.author.username in myfollower_object %}
-																<a href="/unfollow/{{comment.author.username}}"><span class="reply_btn">Unfollow</span></a>
+																<a href="#u" data-action="unfollow" class="reply_btn fellowship {{comment.author.username}}" data-username={{comment.author.username}}>Unfollow</a>
 															{% else %}
-																<a href="/follow/{{comment.author.username}}"><span class="reply_btn">Follow</span></a>
+																<a href="#u" data-action="follow" class="reply_btn fellowship {{comment.author.username}}" data-username={{comment.author.username}}>Follow</a>
 															{% endif %}
 														{% endif %}
 													</div>
 												</div>
 												<p>{{comment.body}}</p>
 											{% endfor %}
-										{% else %}
-											<h4>No comment yet.</h4>
 										{% endif %}
+										<div class="postcommentClass"></div>
 										<div class="review_box">
 											<br>
-											<h5>Give a comment</h5>
-											<form class="row contact_form" action="/post/{{post.id}}/givecomment/" method="post" id="contactForm" novalidate="novalidate">
-												{% csrf_token %}
+											<h5>Give a comment:</h5>
+											<form class="row contact_form postcomment" novalidate="novalidate" data-postid={{post.id}} onsubmit="return false;">
+												<input type="hidden" class="form-control" id="{{post.id}}targetpost" value="{{post.id}}">
 												<div class="col-md-12">
 													<div class="form-group">
-														<input type="text" class="form-control" id="name3" name="body" placeholder="Leave a reply">
+														<input type="text" id="{{post.id}}commentbody" class="form-control" placeholder="Leave a reply">
 													</div>
 												</div>
+												<input type="hidden" id="{{post.id}}author" class="form-control" value="{{user.pk}}">
+												<p style="display: none;" id="postcommenttoken">{{ csrf_token }}</p>
 												
 												<div class="col-md-12 text-right">
 													<button type="submit" value="submit" class="btn submit_btn">Reply</button>

@@ -12,20 +12,7 @@ function viewComment(operator) {
 		}
 	})
 }
-// var key1 = true;
-// function viewComment2(operator) {
-// 	$(document).ready(function(){
-// 		if(key1==false){
-// 			$('#'+operator+'reply').css('display', 'none');
-// 			$('#'+operator).html('↡');
-// 			key1 = true;
-// 		}else{
-// 			$('#'+operator+'reply').css('display', 'block');
-// 			$('#'+operator).text('↠');
-// 			key1 = false;
-// 		}
-// 	})
-// }
+
 var key2 = true;
 function editPost(operator){
 	$(document).ready(function(){
@@ -46,25 +33,4 @@ function editPost(operator){
 		}
 	})
 }
-/*
-$(document).ready(function(){
-	console.log('Function entry');
-	if($('#area').text()=='profile'){
-		$('.navbar-nav #home').addClass('active')
-		$('.menu_nav li').find('.active').removeClass('active');
-		console.log('home');
-	}else if($('#area').text()=='home'){
-		$('.navbar-nav #profile').find('.active').removeClass('active');
-		$('.menu_nav li').addClass('active')
-		console.log('profile');
-	}
-	else if($('#area').text()=='pages'){
-		$('.navbar-nav .pages').addClass('active')
-		$('#navbarSupportedContent').find('.active').removeClass('active');
-		console.log('pages');
-	}else if($('#area').text()=='contact'){
-		$('.navbar-nav .contact').addClass('active')
-		console.log('contact');
-		$('#navbarSupportedContent').find('.active').removeClass('active');
-	}
-})*/
+

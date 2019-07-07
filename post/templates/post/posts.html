@@ -14,6 +14,9 @@
     .postdetail{
         min-height: 350px;
     }
+    .makeblack{
+        color: black;
+    }
 </style>
 
 <!--================Blog Categorie Area =================-->
@@ -64,6 +67,25 @@
 <!--================Blog Area =================-->
 <section class="blog_area">
 <div class="container">
+    <template id="postSearchResultTemplate">
+        <li>
+            {% verbatim %}
+            <img src="/static/index/img/background/{{background}}" class="searchImg">
+            <a href="/post/{{id}}">{{title}}</a>
+            <span class="searchResultPostNum">By <a href="/profile/{{author}}">{{author}}</a></span>
+            {% endverbatim %}
+        </li>
+    </template>
+    <form class="postSearch" onsubmit="return false;">
+        <input type="text" class="form-control" placeholder="Search Posts by title">
+        <p class="hide">{{csrf_token}}</p>
+
+        <div class="postSearchResult">
+            <ul>
+            </ul>
+       </div>
+    </form>
+    <br>
     <h2>House of {{postType}}s</h2>
     <div class="row">
         <div class="col-lg-8">
@@ -82,8 +104,8 @@
                                         <li><a href="/post/{{post.pk}}">{{post.view_set.count}} Views<i class="lnr lnr-eye"></i></a></li>
                                         <li><a href="/post/{{post.pk}}">{{post.postcomment_set.count}} Comments<i class="lnr lnr-bubble"></i></a></li>
                                     </ul>
-                                    <h3>
-                                        <a href="/post/favour/{{post.pk}}" class="icon_btn" title="Add to favourite list"><i class="lnr lnr lnr-diamond"></i></a>
+                                    <h3 class="media-body">
+                                        <a href="#fav" class="icon_btn makeblack" title="Add to favourite list"><i class="lnr lnr lnr-diamond favouring"  data-action="favour" data-postid="{{post.pk}}"></i></a>
                                     </h3>
                                 </div>
                            </div>
@@ -150,11 +172,13 @@
                                 <p>No description about {{author.user.ursername}} yet.</p>
                             {% endif %}
                             {% if user.username != author.user.username %}
-                                {% if author.user.username in following %}
-                                    <a href="/unfollow/{{author.user.username}}" class="white_bg_btn">Unfollow</a>
-                                {% else %}
-                                    <a href="/follow/{{author.user.username}}" class="white_bg_btn">Follow</a>
-                                {% endif %}
+                                <div class="media-body">
+                                    {% if author.user.username in following %}
+                                        <a href="#u" data-action="unfollow" class="white_bg_btn fellowship {{author.user.username}}" data-username={{author.user.username}}>Unfollow</a>
+                                    {% else %}
+                                        <a href="#u" data-action="follow" class="white_bg_btn fellowship {{author.user.username}}" data-username={{author.user.username}}>Follow</a>
+                                    {% endif %}
+                                </div>
                             {% endif %}
                             <div class="br"></div>
                         </aside>

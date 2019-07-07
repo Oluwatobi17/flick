@@ -19,10 +19,12 @@
     <link rel="stylesheet" href="{% static '/vendors/nice-select/css/nice-select.css' %}">
     <link rel="stylesheet" href="{% static '/vendors/animate-css/animate.css' %}">
     <link rel="stylesheet" href="{% static '/vendors/jquery-ui/jquery-ui.css' %}"> 
+   	<link href="{% static 'index/img/favicon.ico' %}" rel="icon" type="image/x-icon">
+
     <!-- main css -->
 
     <link rel="stylesheet" href="{% static '/css/style.css' %}">
-    <link rel="stylesheet" href="{% static '/css/responsive.css' %}">
+    <link rel="stylesheet" href="{% static 'index/css/responsive.css' %}">
 
     <!-- Dac css -->
     <link rel="stylesheet" type="text/css" href="{% static 'index/css/dac.css' %}">
@@ -31,34 +33,6 @@
     <style type="text/css">
 		body{
 			background: url('{% static '/img/background.png' %}');
-		}
-		ul.messagelist {
-		    padding: 0;
-		    margin: 0;
-		}
-
-		ul.messagelist li {
-		    display: block;
-		    font-weight: 400;
-		    font-size: 13px;
-		    padding: 10px 10px 10px 65px;
-		    margin: 0 0 10px 0;
-		    background: #dfd url(../img/icon-yes.svg) 40px 12px no-repeat;
-		    background-size: 16px auto;
-		    color: #333;
-		}
-
-		ul.messagelist li.warning {
-		    background: #ffc url(../img/icon-alert.svg) 40px 14px no-repeat;
-		    background-size: 14px auto;
-		}
-
-		ul.messagelist li.error {
-		    background: #ffefef url(../img/icon-no.svg) 40px 12px no-repeat;
-		    background-size: 16px auto;
-		}
-		.notNum{
-			color: black;
 		}
 	</style>
 
@@ -76,23 +50,42 @@
        		<div class="container">
 				<div class="float-left">
 					<a href="mailto:ganiuibrahim3000@gmail.com">ganiuibrahim3000@gmail.com</a>
-					<a href="/">Welcome to Dacken</a>
+					<a href="/">Welcome to Flick</a>
 				</div>
-				<div class="float-right">
+				<!-- <div class="float-right">
 					<ul class="header_social">
 						<li><a href="#"><i class="fa fa-facebook"></i></a></li>
 						<li><a href="#"><i class="fa fa-twitter"></i></a></li>
 						<li><a href="#"><i class="fa fa-dribbble"></i></a></li>
 						<li><a href="#"><i class="fa fa-behance"></i></a></li>
 					</ul>
-				</div>
+				</div> -->
        		</div>	
        	</div>	
         <div class="main_menu">
         	<nav class="navbar navbar-expand-lg navbar-light main_box">
 				<div class="container">
 					<!-- Brand and toggle get grouped for better mobile display -->
-					<a class="navbar-brand logo_h" href="/"><img src="{% static '/img/logo.png' %}" alt=""></a>
+					<a class="navbar-brand logo_h" href="/"><img src="{% static 'index/img/logo.png' %}" alt=""></a>
+					<template id="searchResultTemplate">
+                   		<li>
+                   			{% verbatim %}
+                   			<img src="{{profilePics}}" class="searchImg">
+                   			<a href="/profile/{{username}}">{{username}}</a>
+                   			<span class="searchResultPostNum">{{noOfPost}} Post</span>
+                   			{% endverbatim %}
+                   		</li>
+               		</template>
+					{% if request.user.is_authenticated %}
+						<form class="searchForm hide" onsubmit="return false;">
+	                        <input type="text" class="form-control" style="width: 100%;" placeholder="Search username" id="searchText">
+	                        <p class="hide" id="searchToken">{{csrf_token}}</p>
+	                       <div class="searchResult hide">
+	                       		<ul>
+			                    </ul>
+	                       </div>
+	                    </form>
+                    {% endif %}
 					<!-- <span class="navbar-brand logo_h site_logo">Flense</span> -->
 					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 						<span class="icon-bar"></span>
@@ -121,7 +114,7 @@
 
 							</ul>
 							<ul class="nav navbar-nav navbar-right">
-								<li class="nav-item"><a href="#" class="search"><i class="lnr lnr-magnifier"></i></a></li>
+								<li class="nav-item"><a href="#" class="search"><i class="lnr lnr-magnifier" title="Search for a user by their username"></i></a></li>
 							</ul>
 						{% else %}
 							<!-- If not a user -->
@@ -137,8 +130,10 @@
 
 					</div> 
 				</div>
-				
         	</nav>
+        	<ul class="messagelist">
+        		<li style="display: none;" class="dacMsg"></li>
+        	</ul>
         	{% if messages %}
         		<ul class="messagelist">
         			{% for message in messages %}
@@ -168,10 +163,10 @@
 	        <div class="col-lg-3  col-md-6 col-sm-6">
 	            <div class="single-footer-widget">
 	                <h6 class="footer_title">About Us</h6>
-	                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore dolore magna aliqua.</p>
+	                <p>Flick is an idea to give opportunity to read and publish jokes, quotes, motivational text, puzzle and facts. You get to follow a flick user whose post usually have your attention to get a notification when they release a new post. Flick is an idea of Ganiu Ibrahim and was developed by him.</p>
 	            </div>
 	        </div>
-	        <div class="col-lg-4 col-md-6 col-sm-6">
+	        <!-- <div class="col-lg-4 col-md-6 col-sm-6">
 	            <div class="single-footer-widget">
 	                <h6 class="footer_title">Newsletter</h6>
 	                <p>Stay updated with our latest trends</p>		
@@ -212,12 +207,11 @@
 						<a href="#"><i class="fa fa-behance"></i></a>
 	                </div>
 	            </div>
-	        </div>						
+	        </div> -->						
 	    </div>
 	    <div class="row footer-bottom d-flex justify-content-between align-items-center">
 	        <p class="col-lg-12 footer-text text-center"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-	Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-	<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
+	Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | Flick</p>
 	    </div>
 	</div>
 	</footer>
@@ -239,7 +233,6 @@
 						    			 {{not.message}} <br><span class="small"> {{not.date}}</span>
 						    		</li>
 					    		</a>
-					    		<!--  Jan. 23, 2019 -->
 				    		{% endfor %}
 				    	</ul>
 			    	{% else %}
@@ -250,7 +243,7 @@
 		    </div>
 	    {% endif %}
     {% endif %}
-	<!--================ End footer Area  =================-->
+    <!--================ End footer Area  =================-->
 
 
 
@@ -276,12 +269,8 @@
 	<script src="{% static '/js/mail-script.js' %}"></script>
 	<script src="{% static 'index/js/dac.js' %}"></script>
 
+	<script src="{% static 'index/js/mustache.js' %}"></script>
 	<script src="{% static 'index/js/realtime.js' %}"></script>
-
-
-	<!-- <script src="{% static 'index/js/react/react.min.js' %}"></script>
-	<script src="{% static 'index/js/react/react-dom.min.js' %}"></script>
-	<script src="{% static 'index/js/react/browser.min.js' %}"></script> -->
 
 	<script type="text/javascript">
 		$('document').ready(function(){
@@ -299,7 +288,7 @@
 			$('.title_region').on('click', function(){
 				if( $('.not_title img').attr('src')=='/static/index/img/notification/newnote.png' ){
 					$.ajax({
-						url: '/checknotification',
+						url: '/api/checknotification',
 						success: function(data){
 							console.log('Data returned!')
 							console.log(data)
@@ -311,8 +300,5 @@
 			})
 		})
 	</script>
-	{% block react %}
-
-	{% endblock %}
 </body> 
 </html>

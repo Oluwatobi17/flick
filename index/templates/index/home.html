@@ -5,6 +5,17 @@
 {% load static %}
 
 {% block content %}
+	<style type="text/css">
+		.img-fluid{
+			float: right;
+		}
+		.f_p_item h4{
+			color: white;
+		}
+		.f_p_item h4:hover{
+			color: blue;
+		}
+	</style>
 	 
 	<!--================Home Banner Area =================-->
 	<section class="home_banner_area">
@@ -17,7 +28,7 @@
 					</div>
 					<div class="col-lg-7">
 						<div class="halemet_img">
-							<img src="{% static 'index/img/banner/vest.png' %}" alt="">
+							<img src="{% static 'index/img/banner/protection.png' %}" alt="">
 						</div>
 					</div>
 				</div>
@@ -31,10 +42,11 @@
 		<section class="feature_product_area">
 			<div class="main_box">
 				<div class="container">
+					<br><br><br>
 					<div class="row hot_product_inner">
 						<div class="col-lg-6">
 							<div class="hot_p_item">
-								<img class="img-fluid" src="{% static '/img/product/hot-product/hot-p-1.jpg' %}" alt="">
+								<img class="img-fluid" src="{% static 'index/img/product/hot-product/hot-p-1.png' %}" alt="hello">
 								<div class="product_text">
 									<h4>Lover of the <br />Dopest Jokes?</h4>
 									<a href="/post/Joke/all">CHECK IT OUT</a>
@@ -43,7 +55,7 @@
 						</div>
 						<div class="col-lg-6">
 							<div class="hot_p_item">
-								<img class="img-fluid" src="{% static '/img/product/hot-product/hot-p-2.jpg' %}" alt="">
+								<img class="img-fluid" src="{% static 'index/img/product/hot-product/hot-p-2.png' %}" alt="">
 								<div class="product_text">
 									<h4>Die hard fan <br />of Quotes?</h4>
 									<a href="/post/Quote/all">CHECK IT OUT</a>
@@ -60,10 +72,10 @@
 							{% for quote in Quoteoftheday %}
 								<div class="item">
 									<div class="f_p_item">
-										<div class="f_p_img post_height">
-											<h4>{{quote.post.body}}</h4>
+										<div class="f_p_img post_height" style="background: url('static/index/img/background/{{quote.post.background}}');">
+											<h4 class="white">{{quote.post.body}}</h4>
 											<div class="p_icon">
-												<a href="/post/favour/{{quote.post.pk}}"><i class="lnr lnr-heart"></i></a>
+												<a href="/post/{{quote.post.pk}}">More</a>
 												<!-- <a href="#"><i class="lnr lnr-cart"></i></a> -->
 												<!-- <a href="#" id="heartbreak"><i class="fa fa-heart fa-stack-1x"></i><i class="fa fa-bolt fa-stack-1x fa-inverse"></i></a> -->
 											</div>
@@ -94,11 +106,14 @@
 							{% for motive in Motivationoftheday %}
 								<div class="item">
 									<div class="f_p_item">
-										<div class="f_p_img post_height2">
+										<div class="f_p_img post_height2" style="background: url('static/index/img/background/{{motive.post.background}}');">
 											<!-- <img class="/img-fluid" src="{% static '/img/product/feature-product/f-p-1.jpg' %}" alt=""> -->
-											<h4>{{motive.post.body}}</h4>
+											<h4 class="white">{{motive.post.body}}</h4>
 											<div class="p_icon">
-												<a href="/post/favour/{{motive.post.id}}"><i class="lnr lnr-heart"></i></a>
+												<a href="/post/{{motive.post.id}}">More</a>
+
+												<!-- <i class="lnr lnr-heart"></i> -->
+												
 												<!-- <a href="#"><i class="lnr lnr-cart"></i></a> -->
 												<!-- <a href="#" id="heartbreak"><i class="fa fa-heart fa-stack-1x"></i><i class="fa fa-bolt fa-stack-1x fa-inverse"></i></a> -->
 											</div>
@@ -108,6 +123,7 @@
 									</div>
 								</div>
 							{% endfor %}
+							<h4></h4>
 						</div>
 					</div>
 				</div>
@@ -131,10 +147,10 @@
 							{% for joke in Jokeoftheday %}
 								<div class="item">
 									<div class="f_p_item">
-										<div class="f_p_img post_height">
-											<h4>{{joke.post.body}}</h4>
+										<div class="f_p_img post_height" style="background: url('static/index/img/background/{{joke.post.background}}');">
+											<h4 class="white">{{joke.post.body}}</h4>
 											<div class="p_icon">
-												<a href="/post/favour/{{joke.post.pk}}"><i class="lnr lnr-heart"></i></a>
+												<a href="/post/{{joke.post.pk}}">More</a>
 												<!-- <a href="#"><i class="lnr lnr-cart"></i></a> -->
 												<!-- <a href="#" id="heartbreak"><i class="fa fa-heart fa-stack-1x"></i><i class="fa fa-bolt fa-stack-1x fa-inverse"></i></a> -->
 											</div>
@@ -144,6 +160,7 @@
 									</div>
 								</div>
 							{% endfor %}
+							<h4></h4>
 						</div>
 					</div>
 				</div>

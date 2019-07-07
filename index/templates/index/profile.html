@@ -8,12 +8,17 @@
 
 <style type="text/css">
 	.small_propics{
-		width: 70px;
-		height: 70px;
-		border-radius: 35px;
+		width: 50px;
+		height: 50px;
+		border-radius: 25px;
+	}
+	.hide{
+		display: none;
+	}
+	.comment_list .review_item.reply{
+		margin-left: 20px;
 	}
 </style>
-
 <!--================Home Banner Area =================-->
 {% autoescape on %}
 <section class="banner_area">
@@ -78,11 +83,11 @@
 							<p>No description about you given yet</p>
 						{% endif %}
 
-					<div class="card_area">
+					<!-- <div class="card_area">
 						<a class="main_btn" href="#">Change Picture</a>
 						<a class="icon_btn" href="#"><i class="lnr lnr lnr-diamond"></i></a>
 						<a class="icon_btn" href="#"><i class="lnr lnr lnr-heart"></i></a>
-					</div>
+					</div> -->
 				</div>
 			</div>
 		</div>
@@ -115,15 +120,16 @@
 		</ul>
 		<div class="tab-content" id="myTabContent">
 			<div class="tab-pane fade" id="wall" role="tabpanel" aria-labelledby="wall-tab">
-				<h3>Your Wall({{wall | length}})</h3>
+				<h3>Your Wall(<span id="wallcount">{{wall | length}}</span>)</h3>
 				<div class="row">
 					<!-- Write on your wall -->
 					<div class="col-lg-6">
 						<div class="review_box">
-							<form class="row contact_form" id="contactForm7" novalidate="novalidate" onsubmit="writeonwall(); return false;">
-								{% csrf_token %}
+							<form class="row contact_form" id="contactForm7" novalidate="novalidate" onsubmit="return false;">
+								<p style="display: none;" id="mywalltoken">{{ csrf_token }}</p>
+								<input type="hidden" id="user" value="{{ user.username }}">
+								<input type="hidden" id="wall_writer" value="{{ user.pk }}">
 								<div class="col-md-12">
-									<p style="display: none;" id="wallowner">{{ user.username }}</p>
 									<div class="form-group">
 										<textarea class="form-control" name="body" id="message5" rows="1" placeholder="Write on your wall"></textarea>
 									</div>
@@ -137,15 +143,88 @@
 					</div>
 					<div class="col-lg-6">
 						<div class="comment_list">
+							<div class="newWallTemplateClass">
+								<!-- Mustache template for new wall post -->
+								<template id="newWallPostTemplate">
+									<div class="review_item">
+										<div class="media">
+											<div class="d-flex">
+												{% verbatim %}
+												<img src="{{profilePics}}" alt="" style="width: 50px; height: 50px; border-radius: 25px;">
+											</div>
+											<div class="media-body">
+												<a href="/profile/{{username}}"><h4>You</h4></a>
+												<!-- <h5>{{wallpost.date}}</h5> -->
+												
+												<h5>{{ date }}</h5>
+											</div>
+										</div>
+										<p id="{{pk}}text">{{ body }}</p>
+										
+									</div>
+									<span onclick="viewComment({{id}})" id="{{id}}" class="viewCommentbut">View comments</span>
+									<br><br>
+									<div class="review_item reply" id="{{id}}reply">
+										<h4>Comments(<span class="commentCount">0</span>)</h4>
+										<div class="wallreplycontainer">
+											<!-- The wall reply goes here... template is below -->
+										</div>
+										<h4 class="nocomment">No comment yet</h4>
+										<div class="review_box">
+											<br>
+											<h5>Give a comment</h5>
+											<form class="row contact_form wallreply" novalidate="novalidate" onsubmit="return false;" data-identify="{{id}}replywallform">
+												<input type="hidden" id="reply_wall" value="{{wall}}">
+											{% endverbatim %}
+
+												<p style="display: none;" class="wallreplytoken">{{ csrf_token }}</p>
+
+												<input type="hidden" {% verbatim %} id="{{id}}reply_writer" {% endverbatim %} value="{{user.pk}}">
+												<div class="col-md-12">
+													<div class="form-group">
+														{% verbatim %}
+														<input type="text" class="form-control" placeholder="Leave a reply" id="{{id}}wallreplybody">
+													</div>
+												</div>
+												
+												<div class="col-md-12 text-right">
+													<button type="submit" value="submit" class="btn submit_btn">Reply</button>
+												</div>
+											</form>
+											<br>
+										</div>
+									</div>
+								</template>
+								<!-- Wall Template ends here. -->
+
+								<!-- Wall reply template starts here -->
+								<template id="wallReplyTemplate">
+									<div class="media">
+										<div class="d-flex">
+											<img src="{{profilePics}}" style="width: 50px; height: 50px; border-radius: 25px;" alt="">
+											
+										</div>
+										<div class="media-body">
+											<a href="/profile/{{writer}}"><h4>{{writer}}</h4></a>
+
+											<h5>{{date}}</h5>
+										</div>
+									</div>
+									<p>{{replybody}}</p>
+									{% endverbatim %}
+								</template>
+								<!-- Ends here -->
+							</div>
+
 							{% if wall %}
 								{% for wallpost in wall %}
 									<div class="review_item">
 										<div class="media">
 											<div class="d-flex">
 												{% if wallpost.writer.profilePics %}
-													<img src="{{wallpost.writer.profilePics.url}}" alt="" style="width: 70px; height: 70px; border-radius: 35px;">
+													<img src="{{wallpost.writer.profilePics.url}}" alt="" style="width: 50px; height: 50px; border-radius: 25px;">
 												{% else %}
-													<img src="{% static 'index/media/default.png' %}" alt="" style="width: 70px; height: 70px; border-radius: 35px;">
+													<img src="{% static 'index/media/default.png' %}" alt="" style="width: 50px; height: 50px; border-radius: 25px;">
 												{% endif %}
 											</div>
 											<div class="media-body">
@@ -157,9 +236,9 @@
 												<h5>{{wallpost.date}}</h5>
 												{% if wallpost.writer.username != user.username %}
 													{% if wallpost.writer.username in following %}
-														<a href="/unfollow/{{wallpost.writer.username}}"><span class="reply_btn">Unfollow</span></a>
+														<a href="#u" data-action="unfollow" class="reply_btn fellowship {{wallpost.writer.username}}" data-username={{wallpost.writer.username}}>Unfollow</a>
 													{% else %}
-														<a href="/follow/{{wallpost.writer.username}}"><span class="reply_btn">Follow</span></a>
+														<a href="#f" data-action="follow" class="reply_btn fellowship {{wallpost.writer.username}}" data-username={{wallpost.writer.username}}>Follow</a>
 													{% endif %}
 												{% endif %}
 											</div>
@@ -170,47 +249,64 @@
 									<span onclick="viewComment({{wallpost.pk}})" id="{{wallpost.pk}}" class="viewCommentbut">View comments</span>
 									<br><br>
 									<div class="review_item reply" id="{{wallpost.pk}}reply">
-										<h4>Comments({{wallpost.wallreply_set.count}})</h4>
-										{% if wallpost.wallreply_set.count %}
-											{% for wallcomment in wallpost.wallreply_set.all %}
+										<h4>Comments(<span class="commentCount">{{wallpost.wallreply_set.count}}</span>)</h4>
+
+										<div class="wallreplycontainer">
+											{% verbatim %}
+											<template id="wallReplyTemplate">
 												<div class="media">
 													<div class="d-flex">
-														{% if wallcomment.writer.profilePics %}
-															<img src="{{wallcomment.writer.profilePics.url}}" style="width: 70px; height: 70px; border-radius: 35px;" alt="">
-														{% else %}
-															<img src="{% static 'index/media/default.png' %}" style="width: 70px; height: 70px; border-radius: 35px;" alt="">
-														{% endif %}
+														<img src="{{profilePics}}" style="width: 50px; height: 50px; border-radius: 25px;" alt="">
+														
 													</div>
 													<div class="media-body">
-														{% if wallcomment.writer.username == user.username %}
-															<a href="/profile/{{wallcomment.writer.username}}"><h4>You</h4></a>
-														{% else %}
-															<a href="/profile/{{wallcomment.writer.username}}"><h4>{{wallcomment.writer.username}}</h4></a>
-														{% endif %}
-														<h5>{{wallcomment.date}}</h5>
+														<a href="/profile/{{writer}}"><h4>{{writer}}</h4></a>
 
-														{% if wallcomment.writer.username != user.username %}
-															{% if wallcomment.writer.username in following %}
-																<a href="/unfollow/{{wallcomment.writer.username}}"><span class="reply_btn">Unfollow</span></a>
-															{% else %}
-																<a href="/follow/{{wallcomment.writer.username}}"><span class="reply_btn">Follow</span></a>
-															{% endif %}
-														{% endif %}
+														<h5>{{date}}</h5>
 													</div>
 												</div>
-												<p>{{wallcomment.body}}</p>
-											{% endfor %}
-										{% else %}
-											<h4>No comment yet</h4>
-										{% endif %}
+												<p>{{replybody}}</p>
+											{% endverbatim %}
+											</template>
+
+											{% if wallpost.wallreply_set.count %}
+												{% for wallcomment in wallpost.wallreply_set.all %}
+													<div class="media">
+														<div class="d-flex">
+															{% if wallcomment.writer.profilePics %}
+																<img src="{{wallcomment.writer.profilePics.url}}" style="width: 50px; height: 50px; border-radius: 25px;" alt="">
+															{% else %}
+																<img src="{% static 'index/media/default.png' %}" style="width: 50px; height: 50px; border-radius: 25px;" alt="">
+															{% endif %}
+														</div>
+														<div class="media-body">
+															<a href="/profile/{{wallcomment.writer.username}}"><h4>{{wallcomment.writer.username}}</h4></a>
+															<h5>{{wallcomment.date}}</h5>
+
+															{% if wallcomment.writer.username != user.username %}
+																{% if wallcomment.writer.username in following %}
+																	<a href="#u" data-action="unfollow" class="reply_btn fellowship {{wallcomment.writer.username}}" data-username={{wallcomment.writer.username}}>Unfollow</a>
+																{% else %}
+																	<a href="#u" data-action="follow" class="reply_btn fellowship {{wallcomment.writer.username}}" data-username={{wallcomment.writer.username}}>Follow</a>
+																{% endif %}
+															{% endif %}
+														</div>
+													</div>
+													<p>{{wallcomment.body}}</p>
+												{% endfor %}
+											{% else %}
+												<h4>No comment yet</h4>
+											{% endif %}
+										</div>
 										<div class="review_box">
 											<br>
 											<h5>Give a comment</h5>
-											<form class="row contact_form" action="/wall/writereply/{{wallpost.pk}}/" method="post" id="contactForm8" novalidate="novalidate">
-												{% csrf_token %}
+											<form class="row contact_form wallreply" novalidate="novalidate" onsubmit="return false;" data-identify="{{wallpost.pk}}replywallform">
+												<p style="display: none;" class="wallreplytoken">{{ csrf_token }}</p>
+												<input type="hidden" class="reply_writer" value="{{user.pk}}" id="{{wallpost.pk}}reply_writer">
 												<div class="col-md-12">
 													<div class="form-group">
-														<input type="text" class="form-control" id="name55" name="body" placeholder="Leave a reply">
+														<input type="text" class="form-control" placeholder="Leave a reply" id="{{wallpost.pk}}wallreplybody">
 													</div>
 												</div>
 												
@@ -218,6 +314,7 @@
 													<button type="submit" value="submit" class="btn submit_btn">Reply</button>
 												</div>
 											</form>
+
 											<br>
 										</div>
 									</div>
@@ -295,7 +392,7 @@
 				</form>
 			</div>
 			<div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-				<h3>Your Favorites ({{user.favour_set.count}})</h3>
+				<h3>Your Favorites (<span class="favCount">{{user.favour_set.count}}</span>)</h3>
 				{% if user.favour_set.count %}
 					{% for favouredpost in favourites %}
 						<div class="review_box">
@@ -303,7 +400,7 @@
 								<div class="media">
 									<div class="d-flex">
 										<a href="/post/{{favouredpost.post.postType}}/{{favouredpost.post.pk}}">
-										<img src="/static/index/img/background/{{favouredpost.post.background}}" alt="" style="width: 70px; height: 70px; border-radius: 35px;"></a>
+										<img src="/static/index/img/background/{{favouredpost.post.background}}" alt="" style="width: 50px; height: 50px; border-radius: 25px;"></a>
 									</div>
 									<div class="media-body">
 
@@ -311,28 +408,28 @@
 										<h4>Type(Category): <a href="/post/{{favouredpost.post.postType}}/all">{{favouredpost.post.postType}}</a> ({{favouredpost.post.category}})</h4>
 										<h5>Date: {{ favouredpost.post.date }}</h5>
 
-
-										<a class="reply_btn" href="/post/unfavour/{{favouredpost.post.pk}}">Remove</a>
+										<a class="reply_btn favouring" href="#fav" data-action="unfavour" data-postid="{{favouredpost.post.pk}}">Remove</a>
 									</div>
 								</div>
 								<p>{{favouredpost.post.body}}</p>
 							</div>
-							<span onclick="viewComment({{favouredpost.pk}})" id="{{favouredpost.pk}}" class="viewCommentbut">View comments</span>
-									<br><br>
+							<span onclick="viewComment(2{{favouredpost.post.pk}})" id="{{favouredpost.pk}}" class="viewCommentbut">View comments</span>
+								<br><br>
 
-									<!-- Wher -->
-									<div class="review_item reply" id="{{favouredpost.pk}}reply">
-
+								<!-- Wher -->
+								<div class="review_item reply" id="2{{favouredpost.post.pk}}reply">
+									<div class="favouredpostClass">
+										<h4>Comments(<span class="favpostCount">{{favouredpost.post.postcomment_set.count}}</span>)</h4>
 										{% if favouredpost.post.postcomment_set.count %}
-											<h4>Comments({{favouredpost.post.postcomment_set.count}})</h4>
+											
 											{% for comment in favouredpost.post.postcomment_set.all %}
 
 												<div class="media">
 													<div class="d-flex">
 														{% if comment.author.profilePics %}
-															<img src="{{comment.author.profilePics.url}}" alt="" style="width: 70px; height: 70px; border-radius: 35px;">
+															<img src="{{comment.author.profilePics.url}}" alt="" style="width: 50px; height: 50px; border-radius: 25px;">
 														{% else %}
-															<img src="{% static 'index/media/default.png' %}" alt="" style="width: 70px; height: 70px; border-radius: 35px;">
+															<img src="{% static 'index/media/default.png' %}" alt="" style="width: 50px; height: 50px; border-radius: 25px;">
 														{% endif %}
 													</div>
 													<div class="media-body">
@@ -342,9 +439,9 @@
 															<a href="/profile/{{comment.author.username}}"><h4>{{comment.author.username}}</h4></a>
 
 															{% if comment.author.username in following %}
-																<a href="/unfollow/{{comment.author.username}}"><span class="reply_btn">Unfollow</span></a>
+																<a href="#u" data-action="unfollow" class="reply_btn fellowship {{comment.author.username}}" data-username={{comment.author.username}}>Unfollow</a>
 															{% else %}
-																<a href="/follow/{{comment.author.username}}"><span class="reply_btn">Follow</span></a>
+																<a href="#u" data-action="follow" class="reply_btn fellowship {{comment.author.username}}" data-username={{comment.author.username}}>Follow</a>
 															{% endif %}
 														{% endif %}
 														<h5>{{comment.date}}</h5>
@@ -353,41 +450,29 @@
 												<p>{{comment.body}}</p>
 												<br>
 											{% endfor %}
-											
-										{% else %}
-											<h4>No comment yet</h4>
 										{% endif %}
-										<div class="review_box">
-										<br>
-										<h5>Give a comment</h5>
-										<form class="row contact_form" action="/post/{{favouredpost.post.pk}}/givecomment/" method="post" id="contactForm9" novalidate="novalidate">
-											{% csrf_token %}
-											<div class="col-md-12">
-												<div class="form-group">
-													<input type="text" class="form-control" id="name6" name="body" placeholder="Leave a reply">
-												</div>
+									</div>
+									<div class="review_box">
+									<br>
+									<h5>Give a comment</h5>
+									<form class="row contact_form favourComment" data-postid={{favouredpost.post.pk}} onsubmit="return false;" novalidate="novalidate">
+										<input type="hidden" class="form-control targetpost" value="{{favouredpost.post.pk}}" id="{{favouredpost.post.pk}}favtargetpost">
+										<div class="col-md-12">
+											<div class="form-group">
+												<input type="text" class="form-control" id="{{favouredpost.post.pk}}favcommentbody" placeholder="Leave a reply">
 											</div>
-											
-											<div class="col-md-12 text-right">
-												<button type="submit" value="submit" class="btn submit_btn">Reply</button>
-											</div>
-										</form>
-										<br>
-									</div>
+										</div>
+										
+										<input type="hidden" class="form-control author" id="{{favouredpost.post.pk}}favauthor" value="{{user.pk}}">
+
+										<p style="display: none;" id="favourcommenttoken">{{ csrf_token }}</p>
+										<div class="col-md-12 text-right">
+											<button type="submit" value="submit" class="btn submit_btn">Reply</button>
+										</div>
+									</form>
+									<br>
 								</div>
-							<!-- <div class="review_item reply">
-								<div class="media">
-									<div class="d-flex">
-										<img src="{% static '/img/product/single-product/review-2.png' %}" alt="">
-									</div>
-									<div class="media-body">
-										<h4>Alan Turing</h4>
-										<h5>05th Sep, 2017 at 05:56 pm</h5>
-										<a class="reply_btn" href="#">Remove</a>
-									</div>
-								</div>
-								<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo</p>
-							</div> -->
+							</div>
 						</div>
 					{% endfor %}
 				{% else %}
@@ -418,9 +503,9 @@
 												<h5>{{follower.date}}</h5>
 
 												{% if follower.member.username in following %}
-													<a href="/unfollow/{{follower.member.username}}"><span class="reply_btn">Unfollow</span></a>
+													<a href="#u" data-action="unfollow" class="reply_btn fellowship {{follower.member.username}}" data-username={{follower.member.username}}>Unfollow</a>
 												{% else %}
-													<a href="/follow/{{follower.member.username}}"><span class="reply_btn">Follow</span></a>
+													<a href="#u" data-action="follow" class="reply_btn fellowship {{follower.member.username}}" data-username={{follower.member.username}}>Follow</a>
 												{% endif %}
 											</div>
 										</div>
@@ -432,9 +517,28 @@
 							{% endif %}
 						</div>
 					</div>
-					<div class="col-lg-6">
+					<div class="col-lg-6 following">
 						<div class="comment_list">
 							<h3>Following({{am_following | length}})</h3>
+							<template id="followingTemplate">
+								<div class="review_item">
+									<div class="media">
+										<div class="d-flex">
+										{% verbatim %}
+											<img src="{{profilePics}}" alt="" class="small_propics">
+										</div>
+										<div class="media-body">
+											<a href="/profile/{{username}}">
+												<h4>{{username}}</h4></a>
+											<h5>Date of Followship:</h5>
+											<h5>{{date}}</h5>
+											<a href="#u" data-action="unfollow" class="reply_btn fellowship {{username}}" data-username={{username}}>Unfollow</a>
+										</div>
+										{% endverbatim %}
+									</div>
+								</div>
+								<br>
+							</template>
 							<br>
 							{% if am_following %}
 								{% for fellowship in am_following %}
@@ -448,10 +552,11 @@
 												{% endif %}
 											</div>
 											<div class="media-body">
-												<a href="/profile/{{fellowship.follow.username}}"><h4>{{fellowship.follow.username}}</h4></a>
+												<a href="/profile/{{fellowship.follow.username}}">
+													<h4>{{fellowship.follow.username}}</h4></a>
 												<h5>Date of Followship:</h5>
 												<h5>{{fellowship.date}}</h5>
-												<a href="/unfollow/{{fellowship.follow.username}}"><span class="reply_btn">Unfollow</span></a>
+												<a href="#u" data-action="unfollow" class="reply_btn fellowship {{fellowship.follow.username}}" data-username={{fellowship.follow.username}}>Unfollow</a>
 											</div>
 										</div>
 									</div>
@@ -465,21 +570,170 @@
 				</div>
 			</div>
 			<div class="tab-pane fade show active" id="review" role="tabpanel" aria-labelledby="review-tab">
-				<h3>Your Posts ({{ user.post_set.count }})</h3>
+				
 				<div class="row">
+					<!-- Add post area -->
 					<div class="col-lg-6">
+						<div class="review_box">
+							<p id="app"></p>
+							<h4>Add a Post</h4>
+							<form class="row contact_form" id="contactForm6" onsubmit="return false;" novalidate="novalidate">
+								<p style="display: none;" id="addposttoken">{{ csrf_token }}</p>
+								<input type="hidden" class="form-control" id="userid" value="{{user.pk}}">
+								<div class="col-md-12">
+									<div class="form-group">
+										<input type="text" class="form-control" id="title4" placeholder="Title" required>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="form-group">
+										<select class="form-control" id="type6">
+
+											<option value="Joke">Joke</option>
+											<option value="Quote">Quote</option>
+											<option value="Motivation">Motivation</option>
+											<option value="Puzzle">Puzzle</option>
+											<option value="Fact">Fact</option>
+
+										</select>
+									</div>
+								</div>
+								<div class="col-md-12" style="margin-top: 10px;">
+									<div class="form-group">
+										<input type="text" class="form-control" id="cat3" placeholder="Educational" required>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="form-group">
+										<textarea class="form-control" id="body4" rows="1" placeholder="Write your post" required></textarea>
+									</div>
+								</div>
+								<div class="col-md-12 text-right">
+									<button type="submit" value="submit" class="btn submit_btn">Add post</button>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="col-lg-6">
+						<h3>Your Posts (<span class="postCount">{{ user.post_set.count }}</span>)</h3>
 						<div class="comment_list">
+							<div class="newPostTemplateclass">
+								<template id="newPostTemplate">
+									<div class="comment_list">
+										<div class="review_item">
+											<div class="media">
+												<div class="d-flex">
+													{% verbatim %}
+													<img src="/static/index/img/background/{{background}}" alt="" style="width: 50px; height: 50px; border-radius: 25px;">
+												</div>
+												<div class="media-body">
+													<a href="/post/{{id}}"><h4 id="{{id}}title">{{title}}</h4></a>
+													<a href="/post/{{postType}}/all"><h4 id="{{id}}type">{{postType}}</a> (<span id="{{id}}cat">{{category}}</span>)</h4>
+													<h5>{{ date }}</h5>
+													<span class="reply_btn" onclick="editPost({{id}})" id="{{id}}executor">Edit Post</span>
+												</div>
+											</div>
+											<p id="{{id}}text">{{body}}</p>
+
+											<div id="{{id}}edit" class="reply">
+												<br>
+												<form class="row contact_form editpostform" data-postid="{{id}}" onsubmit="return false;" novalidate="novalidate">
+												{% endverbatim %}
+													<p style="display: none;" class="editposttoken">{{ csrf_token }}</p>
+													{% verbatim %}
+													<div class="col-md-12">
+														<div class="form-group">
+															<input type="text" class="form-control" id="{{id}}postTitle" placeholder="Title" value="{{title}}">
+														</div>
+													</div>
+													<div class="col-md-12">
+														<div class="form-group">
+															<select class="form-control" id="{{id}}postType" name="postType" value="{{postType}}">
+
+																<option value="Joke">Joke</option>
+																<option value="Quote">Quote</option>
+																<option value="Motivation">Motivation</option>
+																<option value="Puzzle">Puzzle</option>
+																<option value="Fact">Fact</option>
+
+															</select>
+														</div>
+													</div>
+													<div class="col-md-12" style="margin-top: 10px;">
+														<div class="form-group">
+															<input type="text" class="form-control" id="{{id}}postCategory" placeholder="Educational" value="{{category}}">
+														</div>
+													</div>
+													<div class="col-md-12">
+														<div class="form-group">
+															<textarea class="form-control" id="{{id}}postBody" rows="1" placeholder="Write your post" required>{{body}}</textarea>
+														</div>
+													</div>
+													<div class="col-md-12 text-right">
+														<button type="submit" value="submit" class="btn submit_btn">Edit</button>
+													</div>
+												</form>
+											</div>
+										</div>
+										<span onclick="viewComment({{id}})" id="{{id}}" class="viewCommentbut">View comments</span>
+										<br><br>
+										<!-- Wher -->
+										<div class="review_item reply" id="{{id}}reply" style="display: none;">
+											<!-- Post comment template -->
+											<div class="postcommentClass">
+												<!-- New comment goes here -->
+												<!-- <template id="postCommentTemplate">
+													<p>Profile Pics: {{profilePic}}</p>
+													<div class="media">
+														<div class="d-flex">
+															<img src="{{profilePic}}" alt="" class="small_propics">
+														</div>
+														<div class="media-body">
+															<a href="/profile/{{author}}"><h4>uYou</h4></a>
+															<h5>{{comDate}}</h5>
+														</div>
+													</div>
+													<p>{{comBody}}</p>
+													<br>
+												</template> -->
+											</div>
+											<form class="row contact_form postcomment" novalidate="novalidate" data-postid={{id}} onsubmit="return false;">
+												<div class="review_box">
+													<br><br>
+													<h5>Give a comment</h5>
+												</div>
+												<input type="hidden" class="form-control targetpost" value="{{id}}" id="{{id}}targetpost">
+												<div class="col-md-12">
+													<div class="form-group">
+														<input type="text" class="form-control" id="{{id}}commentbody" placeholder="Leave a reply">
+													</div>
+												</div>
+												
+												<input type="hidden" class="form-control author" id="{{id}}author" {% endverbatim %} value="{{user.pk}}">
+												<p style="display: none;" id="postcommenttoken">{{ csrf_token }}</p>
+												<div class="col-md-12 text-right">
+													<button type="submit" value="submit" class="btn submit_btn">Reply</button>
+												</div>
+											</form>
+											<br>
+											<br>
+									</div>
+																				
+								</div>
+							</template>
+						</div>
+							<!-- New post template ends here -->
+
 							{% if user.post_set.count %}
 								{% for post in posts %}
-
 								<div class="review_item">
 									<div class="media">
 										<div class="d-flex">
-											<img src="/static/index/img/background/{{post.background}}" alt="" style="width: 70px; height: 70px; border-radius: 35px;">
+											<img src="/static/index/img/background/{{post.background}}" alt="" style="width: 50px; height: 50px; border-radius: 25px;">
 										</div>
 										<div class="media-body">
-											<a href="/post/{{post.pk}}"><h4>{{post.title}}</h4></a>
-											<a href="/post/{{post.postType}}/all"><h4>{{post.postType}}</a> ({{post.category}})</h4>
+											<a href="/post/{{post.pk}}"><h4 id="{{post.pk}}title">{{post.title}}</h4></a>
+											<a href="/post/{{post.postType}}/all"><h4 id="{{post.pk}}type">{{post.postType}}</a> (<span id="{{post.pk}}cat">{{post.category}}</span>)</h4>
 											<h5>{{ post.date }}</h5>
 											<span class="reply_btn" onclick="editPost({{ post.pk }})" id="{{post.pk}}executor">Edit Post</span>
 										</div>
@@ -491,16 +745,16 @@
 
 									<div id="{{ post.pk }}edit" class="reply">
 										<br>
-										<form class="row contact_form" action="/post/{{post.pk}}/editpost/" method="post" id="contactForm3" novalidate="novalidate">
-											{% csrf_token %}
+										<form class="row contact_form editpostform" data-postid="{{post.pk}}" onsubmit="return false;" novalidate="novalidate">
+											<p style="display: none;" class="editposttoken">{{ csrf_token }}</p>
 											<div class="col-md-12">
 												<div class="form-group">
-													<input type="text" class="form-control" id="name7" name="title" placeholder="Title" value="{{post.title}}">
+													<input type="text" class="form-control" id="{{post.pk}}postTitle" placeholder="Title" value="{{post.title}}">
 												</div>
 											</div>
 											<div class="col-md-12">
 												<div class="form-group">
-													<select class="form-control" id="text3" name="postType" value="{{post.postType}}">
+													<select class="form-control" id="{{post.pk}}postType" name="postType" value="{{post.postType}}">
 
 														<option value="Joke">Joke</option>
 														<option value="Quote">Quote</option>
@@ -513,12 +767,12 @@
 											</div>
 											<div class="col-md-12" style="margin-top: 10px;">
 												<div class="form-group">
-													<input type="text" class="form-control" id="number7" name="category" placeholder="Educational" value="{{post.category}}">
+													<input type="text" class="form-control" id="{{post.pk}}postCategory" placeholder="Educational" value="{{post.category}}">
 												</div>
 											</div>
 											<div class="col-md-12">
 												<div class="form-group">
-													<textarea class="form-control" name="body" id="message6" rows="1" placeholder="Write your post" required>{{post.body}}</textarea>
+													<textarea class="form-control" id="{{post.pk}}postBody" rows="1" placeholder="Write your post" required>{{post.body}}</textarea>
 												</div>
 											</div>
 											<div class="col-md-12 text-right">
@@ -530,10 +784,29 @@
 								<span onclick="viewComment({{post.pk}})" id="{{ post.pk }}" class="viewCommentbut">View comments</span>
 								<br><br>
 
-								<!-- Wher -->
+								<!-- new post for old post -->
 								<div class="review_item reply" id="{{ post.pk }}reply" style="display: none;">
+									
+									<h4>Comments (<span class="postCommentCount">{{post.postcomment_set.count}}</span>)</h4>
+									<div class="postcommentClass">
+										<template id="postCommentTemplate">
+											<div class="media">
+												{% verbatim %}
+												<div class="d-flex">
+													<img src="{{profilePic}}" alt="" class="small_propics">
+												</div>
+												<div class="media-body">
+													<a href="/profile/{{author}}"><h4>You</h4></a>
+													<h5>{{comDate}}</h5>
+												</div>
+											</div>
+											<p>{{comBody}}</p>
+											<br>
+											{% endverbatim %}
+										</template>
+									</div>
 									{% if post.postcomment_set.count %}
-										<h4>Comments({{post.postcomment_set.count}})</h4>
+											<!-- New comment goes here -->
 										{% for comment in post.postcomment_set.all %}
 
 											<div class="media">
@@ -552,10 +825,9 @@
 														
 														{% if comment.author != user.username %}
 															{% if comment.author.username in following %}
-
-																<a href="/unfollow/{{comment.author.username}}"><span class="reply_btn">Unfollow</span></a>
+																<a href="#u" data-action="unfollow" class="reply_btn fellowship {{comment.author.username}}" data-username={{comment.author.username}}>Unfollow</a>
 															{% else %}
-																<a href="/follow/{{comment.author.username}}"><span class="reply_btn">Follow</span></a>
+																<a href="#u" data-action="follow" class="reply_btn fellowship {{comment.author.username}}" data-username={{comment.author.username}}>Follow</a>
 															{% endif %}
 														{% endif %}
 													{% endif %}
@@ -570,76 +842,31 @@
 										<h4>No comment yet</h4>
 									{% endif %}
 									<div class="review_box">
-									<br>
-									<h5>Give a comment</h5>
-									<form class="row contact_form" action="/post/{{post.pk}}/givecomment/" method="post" id="contactForm4" novalidate="novalidate">
-										{% csrf_token %}
-										<div class="col-md-12">
-											<div class="form-group">
-												<input type="text" class="form-control" id="name3" name="body" placeholder="Leave a reply">
+										<br>
+										<h5>Give a comment</h5>
+										<form class="row contact_form postcomment" novalidate="novalidate" data-postid={{post.id}} onsubmit="return false;">
+													
+											<input type="hidden" class="form-control" id="{{post.id}}targetpost" value="{{post.id}}">
+											<div class="col-md-12">
+												<div class="form-group">
+													<input type="text" id="{{post.id}}commentbody" class="form-control" placeholder="Leave a reply">
+												</div>
 											</div>
-										</div>
-										
-										<div class="col-md-12 text-right">
-											<button type="submit" value="submit" class="btn submit_btn">Reply</button>
-										</div>
-									</form>
-									<br>
-								</div>
-								</div>
+											<input type="hidden" id="{{post.id}}author" class="form-control" value="{{user.pk}}">
+											<p style="display: none;" id="postcommenttoken">{{ csrf_token }}</p>
+											<div class="col-md-12 text-right">
+												<button type="submit" value="submit" class="btn submit_btn">Reply</button>
+											</div>
+										</form>
+										<br>
+									</div>
+									</div>
 
 								{% endfor %}
 
 							{% else %}
-								<h4>You have never given a post</h4>
+								<h4 class="nopost">You have never given a post</h4>
 							{% endif %}
-						</div>
-					</div>
-					
-					<!-- Add post area -->
-					<div class="col-lg-6">
-						<div class="review_box">
-							<p id="app"></p>
-							<h4>Add a Post</h4>
-							<form class="row contact_form" action="/post/createpost/" method="post" id="contactForm6" novalidate="novalidate">
-								{% csrf_token %}
-								<div class="col-md-12">
-									<div class="form-group">
-										<input type="text" class="form-control" id="name44" name="title" placeholder="Title" required>
-									</div>
-								</div>
-								<div class="col-md-12">
-									<div class="form-group">
-										<select class="form-control" id="text33" name="postType">
-
-											<option value="Joke">Joke</option>
-											<option value="Quote">Quote</option>
-											<option value="Motivation">Motivation</option>
-											<option value="Puzzle">Puzzle</option>
-											<option value="Fact">Fact</option>
-
-										</select>
-									</div>
-								</div>
-								<div class="col-md-12" style="margin-top: 10px;">
-									<div class="form-group">
-										<input type="text" class="form-control" id="number6" name="category" placeholder="Educational" required>
-									</div>
-								</div>
-								<!-- <div class="col-md-12" style="margin-top: 10px;">
-									<div class="form-group">
-										<input type="file" class="form-control" id="number4" name="postPic">
-									</div>
-								</div> -->
-								<div class="col-md-12">
-									<div class="form-group">
-										<textarea class="form-control" name="body" id="message4" rows="1" placeholder="Write your post" required></textarea>
-									</div>
-								</div>
-								<div class="col-md-12 text-right">
-									<button type="submit" value="submit" class="btn submit_btn">Add post</button>
-								</div>
-							</form>
 						</div>
 					</div>
 				</div>
@@ -647,6 +874,7 @@
 		</div>
 	</div>
 </section>
+
 {% endautoescape %}
 <!--================End Product Description Area =================-->
 
@@ -656,6 +884,8 @@
 <!--================ End footer Area  =================-->
 
 <!-- Dac javascript -->
-<script type="text/javascript" src="{% static '/js/dac.js' %}"></script>
+<!-- <script type="text/javascript" src="{% static '/js/dac.js' %}"></script>
+ -->
 
+ 
 {% endblock %}

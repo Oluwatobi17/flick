@@ -15,11 +15,6 @@ class User(AbstractUser):
 
 from post.models import Post
 
-
-# class Profilepicture(models.Model):
-# 	user = models.ForeignKey(User)
-# 	profilePics = models.FileField()
-
 class Following(models.Model):
 	member = models.CharField(max_length=500, default='Anonymous')
 	follow = models.ForeignKey(User, default='Anonymous')
